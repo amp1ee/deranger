@@ -1,15 +1,5 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
-#include "PluginProcessor.h"
-
+#include "./PluginProcessor.h"
 #include "PluginEditor.h"
-
 
 //==============================================================================
 TestpluginAudioProcessor::TestpluginAudioProcessor()
@@ -25,6 +15,7 @@ TestpluginAudioProcessor::TestpluginAudioProcessor()
       )
 #endif
 {
+  rack.addReverb();
 }
 
 TestpluginAudioProcessor::~TestpluginAudioProcessor() {}
@@ -70,7 +61,7 @@ int TestpluginAudioProcessor::getCurrentProgram() { return 0; }
 
 void TestpluginAudioProcessor::setCurrentProgram(int index) {}
 
-const juce::String TestpluginAudioProcessor::getProgramName(int index) {
+const juce::String TestpluginAudioProcessor::getProgramName(int  /*index*/) {
   return {};
 }
 
@@ -82,11 +73,22 @@ void TestpluginAudioProcessor::prepareToPlay(double sampleRate,
                                              int samplesPerBlock) {
   // Use this method as the place to do any pre-playback
   // initialisation that you need..
+
+  // Prepare the RackProcessor with the ProcessSpec
+  juce::dsp::ProcessSpec spec;
+  spec.sampleRate = sampleRate;
+  spec.maximumBlockSize = samplesPerBlock;
+  spec.numChannels = getTotalNumOutputChannels();
+
+  // Prepare the RackProcessor (this prepares all modules in the rack)
+  rack.prepare(spec);
+
 }
 
 void TestpluginAudioProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
+  rack.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -99,13 +101,15 @@ bool TestpluginAudioProcessor::isBusesLayoutSupported(
   // This is the place where you check if the layout is supported.
   // In this template code we only support mono or stereo.
   if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() &&
-      layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+      layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo()) {
     return false;
+}
 
     // This checks if the input layout matches the output layout
 #if !JucePlugin_IsSynth
-  if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+  if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet()) {
     return false;
+}
 #endif
 
   return true;
@@ -114,31 +118,22 @@ bool TestpluginAudioProcessor::isBusesLayoutSupported(
 #endif
 
 void TestpluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
-                                            juce::MidiBuffer &midiMessages) {
+                                            juce::MidiBuffer & /*midiMessages*/) {
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
   auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-  // In case we have more outputs than inputs, this code clears any output
-  // channels that didn't contain input data, (because these aren't
-  // guaranteed to be empty - they may contain garbage).
-  // This is here to avoid people getting screaming feedback
-  // when they first compile a plugin, but obviously you don't need to keep
-  // this code if your algorithm always overwrites all the output channels.
-  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    buffer.clear(i, 0, buffer.getNumSamples());
-
-  // This is the place where you'd normally do the guts of your plugin's
-  // audio processing...
-  // Make sure to reset the state if your inner loop is processing
-  // the samples and the outer loop is handling the channels.
-  // Alternatively, you can process the samples with the channels
-  // interleaved by keeping the same state.
-  for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-    auto *channelData = buffer.getWritePointer(channel);
-
-    // ..do something to the data...
+  // Clear any unused output channels (same as in your current code)
+  for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
+      buffer.clear(i, 0, buffer.getNumSamples());
   }
+
+  // Create AudioBlock from the AudioBuffer for processing
+  juce::dsp::AudioBlock<float> block(buffer);
+
+  // Process the block with the RackProcessor
+  rack.process(block);
+
 }
 
 //==============================================================================

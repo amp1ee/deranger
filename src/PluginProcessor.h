@@ -1,19 +1,13 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
+#include "RackProcessor.h"
 
 //==============================================================================
 /**
  */
 class TestpluginAudioProcessor : public juce::AudioProcessor {
+
  public:
   //==============================================================================
   TestpluginAudioProcessor();
@@ -55,4 +49,5 @@ class TestpluginAudioProcessor : public juce::AudioProcessor {
  private:
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TestpluginAudioProcessor)
+  RackProcessor rack;
 };
