@@ -2,6 +2,9 @@
 #include <juce_dsp/juce_dsp.h>  // Add this at the top
 
 #include "ReverbProcessor.h"
+#include "DelayProcessor.h"
+#include "RackEffect.h"
+
 using juce::Reverb;
 
 #define ROOM_SIZE (0.6F)
@@ -44,6 +47,16 @@ class RackProcessor
             modules.push_back(std::move(reverb));
         }
 
+        void addDelay()
+        {
+            auto delay = std::make_unique<DelayProcessor>();
+
+            delay->setDelayTime(1500, 44100);
+            delay->setFeedback(0.7);
+            modules.push_back(std::move(delay));
+
+        }
+
     private:
-        std::vector<std::unique_ptr<ReverbProcessor>> modules;
+        std::vector<std::unique_ptr<RackEffect>> modules;
 };

@@ -16,6 +16,7 @@ TestpluginAudioProcessor::TestpluginAudioProcessor()
 #endif
 {
   rack.addReverb();
+  rack.addDelay();
 }
 
 TestpluginAudioProcessor::~TestpluginAudioProcessor() {}

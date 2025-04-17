@@ -28,7 +28,9 @@ target_sources(ExamplePlugin PRIVATE
     PluginEditor.cpp
     PluginEditor.h
     RackProcessor.h
+    RackEffect.h
     ReverbProcessor.h
+    DelayProcessor.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE

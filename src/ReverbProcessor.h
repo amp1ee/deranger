@@ -1,24 +1,25 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "RackEffect.h"
 
-class ReverbProcessor
+class ReverbProcessor : public RackEffect
 {
     public:
         ReverbProcessor() = default;
 
-        void prepare(const juce::dsp::ProcessSpec &spec)
+        void prepare(const juce::dsp::ProcessSpec &spec) override
         {
             reverb.prepare(spec);
         }
 
-        void process(juce::dsp::AudioBlock<float> &block)
+        void process(juce::dsp::AudioBlock<float> &block) override
         {
             juce::dsp::ProcessContextReplacing<float> context(block);
             reverb.process(context);
         }
 
-        void reset()
+        void reset() override
         {
             reverb.reset();
         }
