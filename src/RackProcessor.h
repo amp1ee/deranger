@@ -23,8 +23,15 @@ class RackProcessor
 
         void process(juce::dsp::AudioBlock<float> &block)
         {
-            for (auto &module : modules)
+            blockCounter++;
+            for (auto &module : modules) {
                 module->process(block);
+
+                // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
+                if ((blockCounter % 100) == 0) { // ≈ every 1.2 sec
+                    module->updateRandomly();
+                }                
+            }
         }
 
         void reset()
@@ -59,4 +66,5 @@ class RackProcessor
 
     private:
         std::vector<std::unique_ptr<RackEffect>> modules;
+        int blockCounter = 0;
 };

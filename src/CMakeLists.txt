@@ -1,4 +1,9 @@
 juce_add_plugin(ExamplePlugin
+
+    COMPANY_NAME "Amplee"                    # Specify the name of the plugin's author
+    COMPANY_COPYRIGHT "Amplee"
+    COMPANY_WEBSITE "https://github.com/amp1ee/"
+    COMPANY_EMAIL "hid.den@gmail.com"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
@@ -8,8 +13,9 @@ juce_add_plugin(ExamplePlugin
 
     PLUGIN_MANUFACTURER_CODE Juce
     PLUGIN_CODE EfRa
-    FORMATS VST3 AU Standalone
-
+    FORMATS 
+        VST3
+        Standalone
     VST3_CATEGORIES "Fx"
     AU_MAIN_TYPE "kAudioUnitType_Effect"
 
@@ -17,6 +23,15 @@ juce_add_plugin(ExamplePlugin
 )
 
 target_compile_features(ExamplePlugin PUBLIC cxx_std_17)
+
+target_compile_definitions(ExamplePlugin
+    PUBLIC
+    # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+    JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+    JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+    JUCE_VST3_CAN_REPLACE_VST2=0
+    # JUCE_DISPLAY_SPLASH_SCREEN=0 #if your plugin is distributed with GPL license or paid
+)
 
 juce_add_binary_data(BinaryAssets SOURCES
     ${CMAKE_SOURCE_DIR}/assets/juce-logo.svg

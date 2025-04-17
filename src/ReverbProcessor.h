@@ -29,6 +29,19 @@ class ReverbProcessor : public RackEffect
             reverb.setParameters(params);
         }
 
+        void updateRandomly() override
+        {
+            float roomSize = 0.3f + rand.nextFloat() * 0.5f;  // 0.3 - 0.8
+            float damping = 0.1f + rand.nextFloat() * 0.4f;   // 0.1 - 0.5
+
+            juce::dsp::Reverb::Parameters p;
+            p.roomSize = roomSize;
+            p.damping  = damping;
+
+            reverb.setParameters(p);
+        }
+
     private:
         juce::dsp::Reverb reverb;
+        juce::Random rand;
 };
