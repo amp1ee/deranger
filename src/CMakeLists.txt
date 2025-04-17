@@ -47,6 +47,7 @@ target_sources(ExamplePlugin PRIVATE
     RackEffect.h
     ReverbProcessor.h
     DelayProcessor.h
+    FlangerProcessor.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE

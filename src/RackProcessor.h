@@ -3,7 +3,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "ReverbProcessor.h"
 #include "DelayProcessor.h"
-#include "RackEffect.h"
+#include "FlangerProcessor.h"
 #include "RoutingNode.h"
 
 using juce::Reverb;
@@ -27,7 +27,7 @@ class RackProcessor
             root.process(block);
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
-            if ((blockCounter % 100) == 0) { // ≈ every ~1.16 sec
+            if ((blockCounter % 256) == 0) {
                 root.updateRandomly();
             }
         }
@@ -62,6 +62,20 @@ class RackProcessor
 
             auto node = std::make_unique<RoutingNode>();
             node->effect = std::move(delay);
+            root.children.push_back(std::move(node));
+        }
+
+        void addFlanger()
+        {
+            auto flanger = std::make_unique<FlangerProcessor>();
+
+            flanger->setAmountOfStereo(0.8f);
+            flanger->setDelay(1000.0f);
+            flanger->setFeedback(0.66f);
+            flanger->setLFODepth(0.6f);
+
+            auto node = std::make_unique<RoutingNode>();
+            node->effect = std::move(flanger);
             root.children.push_back(std::move(node));
         }
 

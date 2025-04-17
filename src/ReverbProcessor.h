@@ -31,6 +31,7 @@ class ReverbProcessor : public RackEffect
 
         void updateRandomly() override
         {
+            printf("\n%s: Updating randomly\n", __FILE__);
             float roomSize = 0.3f + rand.nextFloat() * 0.5f;  // 0.3 - 0.8
             float damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
 

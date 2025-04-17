@@ -15,7 +15,9 @@ TestpluginAudioProcessor::TestpluginAudioProcessor()
       )
 #endif
 {
+
   rack.addDelay();
+  rack.addFlanger();
   rack.addReverb();
 }
 
@@ -76,7 +78,7 @@ void TestpluginAudioProcessor::prepareToPlay(double sampleRate,
   // initialisation that you need..
 
   // Prepare the RackProcessor with the ProcessSpec
-  juce::dsp::ProcessSpec spec;
+  juce::dsp::ProcessSpec spec{};
   spec.sampleRate = sampleRate;
   spec.maximumBlockSize = samplesPerBlock;
   spec.numChannels = getTotalNumOutputChannels();
