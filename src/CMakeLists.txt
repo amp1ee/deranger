@@ -42,6 +42,7 @@ target_sources(ExamplePlugin PRIVATE
     PluginProcessor.h
     PluginEditor.cpp
     PluginEditor.h
+    RoutingNode.h
     RackProcessor.h
     RackEffect.h
     ReverbProcessor.h

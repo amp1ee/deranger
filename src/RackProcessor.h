@@ -1,9 +1,10 @@
 #pragma once
-#include <juce_dsp/juce_dsp.h>  // Add this at the top
 
+#include <juce_dsp/juce_dsp.h>
 #include "ReverbProcessor.h"
 #include "DelayProcessor.h"
 #include "RackEffect.h"
+#include "RoutingNode.h"
 
 using juce::Reverb;
 
@@ -17,27 +18,23 @@ class RackProcessor
     public:
         void prepare(const juce::dsp::ProcessSpec &spec)
         {
-            for (auto &module : modules)
-                module->prepare(spec);
+            root.prepare(spec);
         }
 
         void process(juce::dsp::AudioBlock<float> &block)
         {
             blockCounter++;
-            for (auto &module : modules) {
-                module->process(block);
+            root.process(block);
 
-                // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
-                if ((blockCounter % 100) == 0) { // ≈ every 1.2 sec
-                    module->updateRandomly();
-                }                
+            // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
+            if ((blockCounter % 100) == 0) { // ≈ every ~1.16 sec
+                root.updateRandomly();
             }
         }
 
         void reset()
         {
-            for (auto &module : modules)
-                module->reset();
+            root.reset();
         }
 
         void addReverb()
@@ -51,7 +48,9 @@ class RackProcessor
             p.dryLevel = DRY_LEVEL;
             reverb->setParameters(p);
 
-            modules.push_back(std::move(reverb));
+            auto node = std::make_unique<RoutingNode>();
+            node->effect = std::move(reverb);
+            root.children.push_back(std::move(node));
         }
 
         void addDelay()
@@ -60,11 +59,13 @@ class RackProcessor
 
             delay->setDelayTime(1500, 44100);
             delay->setFeedback(0.7);
-            modules.push_back(std::move(delay));
 
+            auto node = std::make_unique<RoutingNode>();
+            node->effect = std::move(delay);
+            root.children.push_back(std::move(node));
         }
 
     private:
-        std::vector<std::unique_ptr<RackEffect>> modules;
+        RoutingNode root;
         int blockCounter = 0;
 };

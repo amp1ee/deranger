@@ -32,7 +32,7 @@ class ReverbProcessor : public RackEffect
         void updateRandomly() override
         {
             float roomSize = 0.3f + rand.nextFloat() * 0.5f;  // 0.3 - 0.8
-            float damping = 0.1f + rand.nextFloat() * 0.4f;   // 0.1 - 0.5
+            float damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
 
             juce::dsp::Reverb::Parameters p;
             p.roomSize = roomSize;
