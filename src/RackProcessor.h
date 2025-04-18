@@ -10,8 +10,8 @@ using juce::Reverb;
 
 #define ROOM_SIZE (0.6F)
 #define DAMPING   (0.5F)
-#define WET_LEVEL (0.7F)
-#define DRY_LEVEL (1.0F)
+#define WET_LEVEL (0.9F)
+#define DRY_LEVEL (0.7F)
 
 class RackProcessor
 {
@@ -27,7 +27,7 @@ class RackProcessor
             root.process(block);
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
-            if ((blockCounter % 256) == 0) {
+            if ((blockCounter % 128) == 0) {
                 root.updateRandomly();
             }
         }
@@ -70,7 +70,7 @@ class RackProcessor
             auto flanger = std::make_unique<FlangerProcessor>();
 
             flanger->setAmountOfStereo(0.8f);
-            flanger->setDelay(1000.0f);
+            flanger->setDelay(300.0f);
             flanger->setFeedback(0.66f);
             flanger->setLFODepth(0.6f);
 

@@ -95,9 +95,9 @@ public:
     {
         printf("\n%s: Updating randomly\n", __FILE__);
 
-        this->setDelay(juce::Random::getSystemRandom().nextFloat() * 0.25f);
+        this->setDelay(juce::Random::getSystemRandom().nextFloat() * 0.33f);
         this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 0.5f);
-        this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.75f);
+        this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.9f);
     }
 
 private:
@@ -106,13 +106,13 @@ private:
 
     double _sampleRate = 44100.0f;
     int numChannels = 0;
-    float maxDelayTime = 0.02f;
+    float maxDelayTime = 0.33f; // seconds
     float lfoDepth = 0.5f;
     float lfoFreq = 0.33f;
     float stereoWidth = 0.6f;
 
     float   maxDepth               = 1.0f,
-            maxCentreDelayMs       = 100.0f,
+            maxCentreDelayMs       = 300.0f,
             maximumDelayModulation = 20.0f;
 
     std::vector<float> feedback{0.5f};
