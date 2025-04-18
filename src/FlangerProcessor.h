@@ -95,7 +95,7 @@ public:
     {
         printf("\n%s: Updating randomly\n", __FILE__);
 
-        this->setDelay(juce::Random::getSystemRandom().nextFloat() * 0.25f); // up to 0.5Hz
+        this->setDelay(juce::Random::getSystemRandom().nextFloat() * 0.25f);
         this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 0.5f);
         this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.75f);
     }

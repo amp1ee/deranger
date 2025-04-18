@@ -6,12 +6,12 @@
 //==============================================================================
 /**
  */
-class TestpluginAudioProcessor : public juce::AudioProcessor {
+class EffectRackAudioProcessor : public juce::AudioProcessor {
 
  public:
   //==============================================================================
-  TestpluginAudioProcessor();
-  ~TestpluginAudioProcessor() override;
+  EffectRackAudioProcessor();
+  ~EffectRackAudioProcessor() override;
 
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -48,6 +48,6 @@ class TestpluginAudioProcessor : public juce::AudioProcessor {
 
  private:
   //==============================================================================
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TestpluginAudioProcessor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessor)
   RackProcessor rack;
 };

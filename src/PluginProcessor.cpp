@@ -2,7 +2,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-TestpluginAudioProcessor::TestpluginAudioProcessor()
+EffectRackAudioProcessor::EffectRackAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(
           BusesProperties()
@@ -21,14 +21,14 @@ TestpluginAudioProcessor::TestpluginAudioProcessor()
   rack.addReverb();
 }
 
-TestpluginAudioProcessor::~TestpluginAudioProcessor() {}
+EffectRackAudioProcessor::~EffectRackAudioProcessor() {}
 
 //==============================================================================
-const juce::String TestpluginAudioProcessor::getName() const {
+const juce::String EffectRackAudioProcessor::getName() const {
   return JucePlugin_Name;
 }
 
-bool TestpluginAudioProcessor::acceptsMidi() const {
+bool EffectRackAudioProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
   return true;
 #else
@@ -36,7 +36,7 @@ bool TestpluginAudioProcessor::acceptsMidi() const {
 #endif
 }
 
-bool TestpluginAudioProcessor::producesMidi() const {
+bool EffectRackAudioProcessor::producesMidi() const {
 #if JucePlugin_ProducesMidiOutput
   return true;
 #else
@@ -44,7 +44,7 @@ bool TestpluginAudioProcessor::producesMidi() const {
 #endif
 }
 
-bool TestpluginAudioProcessor::isMidiEffect() const {
+bool EffectRackAudioProcessor::isMidiEffect() const {
 #if JucePlugin_IsMidiEffect
   return true;
 #else
@@ -52,27 +52,27 @@ bool TestpluginAudioProcessor::isMidiEffect() const {
 #endif
 }
 
-double TestpluginAudioProcessor::getTailLengthSeconds() const { return 0.0; }
+double EffectRackAudioProcessor::getTailLengthSeconds() const { return 0.0; }
 
-int TestpluginAudioProcessor::getNumPrograms() {
+int EffectRackAudioProcessor::getNumPrograms() {
   return 1;  // NB: some hosts don't cope very well if you tell them there are 0
              // programs, so this should be at least 1, even if you're not
              // really implementing programs.
 }
 
-int TestpluginAudioProcessor::getCurrentProgram() { return 0; }
+int EffectRackAudioProcessor::getCurrentProgram() { return 0; }
 
-void TestpluginAudioProcessor::setCurrentProgram(int index) {}
+void EffectRackAudioProcessor::setCurrentProgram(int index) {}
 
-const juce::String TestpluginAudioProcessor::getProgramName(int  /*index*/) {
-  return {};
+const juce::String EffectRackAudioProcessor::getProgramName(int  /*index*/) {
+  return { "EffectRack by Amplee" };
 }
 
-void TestpluginAudioProcessor::changeProgramName(int index,
+void EffectRackAudioProcessor::changeProgramName(int index,
                                                  const juce::String &newName) {}
 
 //==============================================================================
-void TestpluginAudioProcessor::prepareToPlay(double sampleRate,
+void EffectRackAudioProcessor::prepareToPlay(double sampleRate,
                                              int samplesPerBlock) {
   // Use this method as the place to do any pre-playback
   // initialisation that you need..
@@ -88,14 +88,14 @@ void TestpluginAudioProcessor::prepareToPlay(double sampleRate,
 
 }
 
-void TestpluginAudioProcessor::releaseResources() {
+void EffectRackAudioProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
   rack.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool TestpluginAudioProcessor::isBusesLayoutSupported(
+bool EffectRackAudioProcessor::isBusesLayoutSupported(
     const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
   juce::ignoreUnused(layouts);
@@ -120,7 +120,7 @@ bool TestpluginAudioProcessor::isBusesLayoutSupported(
 }
 #endif
 
-void TestpluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
+void EffectRackAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                             juce::MidiBuffer & /*midiMessages*/) {
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
@@ -140,23 +140,23 @@ void TestpluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 }
 
 //==============================================================================
-bool TestpluginAudioProcessor::hasEditor() const {
+bool EffectRackAudioProcessor::hasEditor() const {
   return true;  // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor *TestpluginAudioProcessor::createEditor() {
-  return new TestpluginAudioProcessorEditor(*this);
+juce::AudioProcessorEditor *EffectRackAudioProcessor::createEditor() {
+  return new EffectRackAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void TestpluginAudioProcessor::getStateInformation(
+void EffectRackAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
   // You should use this method to store your parameters in the memory block.
   // You could do that either as raw data, or use the XML or ValueTree classes
   // as intermediaries to make it easy to save and load complex data.
 }
 
-void TestpluginAudioProcessor::setStateInformation(const void *data,
+void EffectRackAudioProcessor::setStateInformation(const void *data,
                                                    int sizeInBytes) {
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
@@ -166,5 +166,5 @@ void TestpluginAudioProcessor::setStateInformation(const void *data,
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {
-  return new TestpluginAudioProcessor();
+  return new EffectRackAudioProcessor();
 }
