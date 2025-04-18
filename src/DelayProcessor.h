@@ -19,6 +19,8 @@ class DelayProcessor: public RackEffect
             delayLine.setDelay(delayTimeSamples);
         }
 
+        [[nodiscard]] size_t getDelayTime() const { return delayTimeSamples; }
+
         void setDelayTime(float millis, double sampleRate)
         {
             delayTimeSamples = static_cast<size_t>((millis / 1000.0f) * sampleRate);
@@ -44,15 +46,19 @@ class DelayProcessor: public RackEffect
         void reset() override { delayLine.reset(); }
     
         void setMix(float newMix) { mix = juce::jlimit(0.0f, 1.0f, newMix); }
+
+        float getFeedback() { return feedback; }
         void setFeedback(float fb) { feedback = juce::jlimit(0.0f, 1.0f, fb); }
 
         void updateRandomly() override
         {
             printf("\n%s: Updating randomly\n", __FILE__);
-            feedback = 0.3f + rand.nextFloat() * 0.5f;
+            feedback = 0.4f + rand.nextFloat() * 0.4f; // 0.4 - 0.8;
             float randomFactor = 0.85f + 0.77f * rand.nextFloat();
             delayLine.setDelay(delayTimeSamples * randomFactor);
         }
+
+        std::string getName() override { return "Delay"; };
 
     private:
         double _sampleRate = 44100;

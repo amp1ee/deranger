@@ -100,6 +100,8 @@ public:
         this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.9f);
     }
 
+    std::string getName() override { return "Flanger"; };
+
 private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> flangerDelay;
     juce::dsp::Oscillator<float> lfo;

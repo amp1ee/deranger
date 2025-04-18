@@ -7,6 +7,7 @@ class RoutingNode {
 public:
     std::unique_ptr<RackEffect> effect;
     std::vector<std::unique_ptr<RoutingNode>> children;
+    std::function<void(RackEffect* effect, const std::string& name)> onEffectParamsChanged;
 
     bool isParallel = false;
 
@@ -46,8 +47,12 @@ public:
     }
 
     void updateRandomly() {
-        if (effect) effect->updateRandomly();
-        for (auto& child : children)
+        if (effect) { 
+            effect->updateRandomly();
+            onEffectParamsChanged(effect.get(), effect->getName());
+        }
+
+        for (auto& child : children) // randomize rest of the nodes recursively:
             child->updateRandomly();
     }
 
@@ -56,4 +61,6 @@ public:
         for (auto& child : children)
             child->reset();
     }
+
+    std::string getName() { return (effect) ? effect->getName() : "EmptyNode"; }
 };

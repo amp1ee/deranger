@@ -16,6 +16,7 @@ using juce::Reverb;
 class RackProcessor
 {
     public:
+
         void prepare(const juce::dsp::ProcessSpec &spec)
         {
             root.prepare(spec);
@@ -36,6 +37,8 @@ class RackProcessor
         {
             root.reset();
         }
+
+
 
         void addReverb()
         {
@@ -78,6 +81,8 @@ class RackProcessor
             node->effect = std::move(flanger);
             root.children.push_back(std::move(node));
         }
+
+        RoutingNode& getRoot() { return this->root; }
 
     private:
         RoutingNode root;

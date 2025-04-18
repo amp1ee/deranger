@@ -24,6 +24,10 @@ class ReverbProcessor : public RackEffect
             reverb.reset();
         }
 
+        [[nodiscard]] juce::dsp::Reverb::Parameters getParameters() const {
+            return reverb.getParameters();
+        }
+
         void setParameters(const juce::dsp::Reverb::Parameters &params)
         {
             reverb.setParameters(params);
@@ -41,6 +45,8 @@ class ReverbProcessor : public RackEffect
 
             reverb.setParameters(p);
         }
+
+        std::string getName() override { return "Reverb"; };
 
     private:
         juce::dsp::Reverb reverb;
