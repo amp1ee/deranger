@@ -163,6 +163,8 @@ void EffectRackAudioProcessor::setStateInformation(const void *data,
   // call.
 }
 
+RackProcessor& EffectRackAudioProcessor::getRack() { return this->rack; }
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {

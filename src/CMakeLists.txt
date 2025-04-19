@@ -9,7 +9,7 @@ juce_add_plugin(ExamplePlugin
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
-    COPY_PLUGIN_AFTER_BUILD TRUE
+    COPY_PLUGIN_AFTER_BUILD FALSE
 
     PLUGIN_MANUFACTURER_CODE Juce
     PLUGIN_CODE EfRa
@@ -48,6 +48,7 @@ target_sources(ExamplePlugin PRIVATE
     ReverbProcessor.h
     DelayProcessor.h
     FlangerProcessor.h
+    LabelWithBackground.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE

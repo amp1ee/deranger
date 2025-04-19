@@ -7,13 +7,96 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     : AudioProcessorEditor(&p), audioProcessor(p) {
   // Make sure that before the constructor has finished, you've set the
   // editor's size to whatever you need it to be.
-  setSize(400, 300);
+  setSize(400, 600);
   // load Image from BinaryData
   svgimg = juce::Drawable::createFromImageData(BinaryData::jucelogo_svg,
                                                BinaryData::jucelogo_svgSize);
+
+  addAndMakeVisible(sliderContainer);
+
+  addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, "RV Size", 0.0f, 1.0f, 0.6f);
+  addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, 0.5f);
+  addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, 0.5f);
+  
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 100.0f, 6000.0f, 1000.0f);
+  addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, 0.76f);
+
+  addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 0.5f, 330.0f, 42.0f);
+  addAndConfigureSlider(flangerDepthSlider, flangerDepthLabel, "FL Depth", 0.0f, 1.0f, 0.5f);
+  addAndConfigureSlider(flangerFeedbackSlider, flangerFeedbackLabel, "FL Feedback", 0.0f, 1.0f, 0.66f);
+
+  p.getRack().getRoot().onEffectParamsChanged = [this](RackEffect* effect, const std::string& name)
+  {
+    if (effect) {
+      printf("Calling updateSliderValues(%s)...\n", name.c_str());
+      updateSliderValues(*effect, name);
+    }
+  };
+
+  // === Reverb Sliders ===
+    reverbRoomSizeSlider.onValueChange = [this]() {
+      if (auto* reverb = findReverbProcessor())
+      {
+          auto params = reverb->getParameters();
+          params.roomSize = static_cast<float>(reverbRoomSizeSlider.getValue());
+          reverb->setParameters(params);
+      }
+    };
+
+    reverbWetSlider.onValueChange = [this]() {
+      if (auto* reverb = findReverbProcessor())
+      {
+          auto params = reverb->getParameters();
+          params.wetLevel = static_cast<float>(reverbWetSlider.getValue());
+          reverb->setParameters(params);
+      }
+    };
+
+    reverbDampingSlider.onValueChange = [this]() {
+      if (auto* reverb = findReverbProcessor())
+      {
+          auto params = reverb->getParameters();
+          params.damping = static_cast<float>(reverbDampingSlider.getValue());
+          reverb->setParameters(params);
+      }
+    };
+
+    // === Delay Sliders ===
+    delayTimeSlider.onValueChange = [this]() {
+      if (auto* delay = findDelayProcessor())
+      {
+          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()), 44100); // adjust sample rate if needed
+      }
+    };
+
+    delayFeedbackSlider.onValueChange = [this]() {
+      if (auto* delay = findDelayProcessor())
+      {
+          delay->setFeedback(static_cast<float>(delayFeedbackSlider.getValue()));
+      }
+    };
+
+    // === Flanger Sliders ===
+    flangerDelaySlider.onValueChange = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setDelay(static_cast<float>(flangerDelaySlider.getValue()));
+    };
+
+    flangerDepthSlider.onValueChange = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setLFODepth(static_cast<float>(flangerDepthSlider.getValue()));
+    };
+
+    flangerFeedbackSlider.onValueChange = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setFeedback(static_cast<float>(flangerFeedbackSlider.getValue()));
+    };
+
 }
 
-EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {}
+EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
+    audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
+}
 
 //==============================================================================
 void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
@@ -25,12 +108,116 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
                      juce::Justification::centred, 1);
 
   g.setColour(juce::Colours::black);
-  g.setFont(30.0f);
-  g.drawFittedText("Hello World!", getLocalBounds(),
-                   juce::Justification::centred, 1);
 }
 
 void EffectRackAudioProcessorEditor::resized() {
-  // This is generally where you'll want to lay out the positions of any
-  // subcomponents in your editor..
+  auto bounds = getLocalBounds().reduced(20);
+  int rowHeight = 40;
+  int spacing = 14;
+
+  sliderContainer.setBounds(10, 10, getWidth() - 20, getHeight() - 20);
+
+  auto row = [&]() {
+      return bounds.removeFromTop(rowHeight + spacing).withHeight(rowHeight);
+  };
+
+  bounds.removeFromTop(spacing * 3);
+
+  reverbRoomSizeSlider.setBounds(row());
+  reverbWetSlider.setBounds(row());
+  reverbDampingSlider.setBounds(row());
+
+  bounds.removeFromTop(spacing * 2); // extra space between groups
+
+  delayTimeSlider.setBounds(row());
+  delayFeedbackSlider.setBounds(row());
+
+  bounds.removeFromTop(spacing * 2);
+
+  flangerDelaySlider.setBounds(row());
+  flangerDepthSlider.setBounds(row());
+  flangerFeedbackSlider.setBounds(row());
+}
+
+void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label,
+  const juce::String& name,
+  float min, float max, float initial)
+  {
+    slider.setSliderStyle(juce::Slider::LinearHorizontal);
+    slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
+    slider.setRange(min, max);
+    slider.setValue(initial);
+    slider.setColour(juce::Slider::thumbColourId, juce::Colours::aqua);
+    slider.setColour(juce::Slider::trackColourId, juce::Colours::darkcyan);
+    slider.setColour(juce::Slider::textBoxTextColourId, juce::Colours::white);
+    slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::darkslategrey);
+
+    addAndMakeVisible(slider);
+
+    label.setText(name, juce::dontSendNotification);
+    label.attachToComponent(&slider, false);
+    label.setColour(juce::Label::textColourId, juce::Colours::ghostwhite);
+
+    label.setFont(juce::FontOptions(15, 1)); // 1 - Bold, see @juce::Font::FontStyleFlags
+    addAndMakeVisible(label);
+
+}
+
+void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
+{
+  auto nomsg = juce::dontSendNotification;
+
+  if (effectName == "Reverb") {
+    auto *rev = dynamic_cast<ReverbProcessor *>(&effect);
+    juce::dsp::Reverb::Parameters par = rev->getParameters();
+    
+    reverbRoomSizeSlider.setValue(par.roomSize, nomsg);
+    reverbDampingSlider.setValue(par.damping, nomsg);
+    reverbWetSlider.setValue(par.wetLevel, nomsg);
+
+  } else if (effectName == "Delay") {
+    auto *del = dynamic_cast<DelayProcessor *>(&effect);
+
+    //printf("\t\tdel: %f\n", del->getDelayTime());
+    delayTimeSlider.setValue(del->getDelayTime(), nomsg);
+    delayFeedbackSlider.setValue(del->getFeedback(), nomsg);
+
+  } else if (effectName == "Flanger") {
+    auto *flg = dynamic_cast<FlangerProcessor *>(&effect);
+
+    flangerDelaySlider.setValue(flg->getDelay(), nomsg);
+    flangerDepthSlider.setValue(flg->getLFODepth(), nomsg);
+    flangerFeedbackSlider.setValue(flg->getFeedback(), nomsg);
+  }
+}
+
+ReverbProcessor* EffectRackAudioProcessorEditor::findReverbProcessor()
+{
+    for (auto& child : audioProcessor.getRack().getRoot().children)
+    {
+        if (child->effect && child->effect->getName() == "Reverb")
+            return dynamic_cast<ReverbProcessor*>(child->effect.get());
+    }
+    return nullptr;
+}
+
+DelayProcessor* EffectRackAudioProcessorEditor::findDelayProcessor()
+{
+    for (auto& child : audioProcessor.getRack().getRoot().children)
+    {
+        if (child->effect && child->effect->getName() == "Delay")
+            return dynamic_cast<DelayProcessor*>(child->effect.get());
+    }
+    return nullptr;
+}
+
+FlangerProcessor* EffectRackAudioProcessorEditor::findFlangerProcessor()
+{
+    for (auto& child : audioProcessor.getRack().getRoot().children)
+    {
+        if (child->effect && child->effect->getName() == "Flanger")
+            return dynamic_cast<FlangerProcessor*>(child->effect.get());
+    }
+    return nullptr;
 }

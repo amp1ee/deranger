@@ -24,6 +24,10 @@ class ReverbProcessor : public RackEffect
             reverb.reset();
         }
 
+        [[nodiscard]] juce::dsp::Reverb::Parameters getParameters() const {
+            return reverb.getParameters();
+        }
+
         void setParameters(const juce::dsp::Reverb::Parameters &params)
         {
             reverb.setParameters(params);
@@ -34,13 +38,17 @@ class ReverbProcessor : public RackEffect
             printf("\n%s: Updating randomly\n", __FILE__);
             float roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
             float damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
+            float wet     = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
 
             juce::dsp::Reverb::Parameters p;
             p.roomSize = roomSize;
             p.damping  = damping;
+            p.wetLevel = wet;
 
             reverb.setParameters(p);
         }
+
+        std::string getName() override { return "Reverb"; };
 
     private:
         juce::dsp::Reverb reverb;

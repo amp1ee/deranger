@@ -5,8 +5,12 @@
 
 class RoutingNode {
 public:
+
+    RoutingNode() = default;
+
     std::unique_ptr<RackEffect> effect;
     std::vector<std::unique_ptr<RoutingNode>> children;
+    std::function<void(RackEffect* effect, const std::string& name)> onEffectParamsChanged{};
 
     bool isParallel = false;
 
@@ -46,9 +50,22 @@ public:
     }
 
     void updateRandomly() {
-        if (effect) effect->updateRandomly();
-        for (auto& child : children)
+        if (effect) { 
+            effect->updateRandomly();
+            return;
+        }
+
+        for (auto& child : children) { // randomize rest of the nodes recursively:
             child->updateRandomly();
+
+            if (child->effect && onEffectParamsChanged) {
+                juce::MessageManager::callAsync([callback = onEffectParamsChanged,
+                                                ptr = child->effect.get(),
+                                                name = child->effect->getName()] {
+                    callback(ptr, name);
+                });
+            }
+        }
     }
 
     void reset() {
@@ -56,4 +73,9 @@ public:
         for (auto& child : children)
             child->reset();
     }
+
+    std::string getName() { return (effect) ? effect->getName() : "EmptyNode"; }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RoutingNode)
 };

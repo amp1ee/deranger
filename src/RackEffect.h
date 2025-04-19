@@ -11,4 +11,5 @@ class RackEffect
         virtual void process(juce::dsp::AudioBlock<float>& block) = 0;
         virtual void reset() {}
         virtual void updateRandomly() {}
+        virtual std::string getName() { return nullptr; }
 };
