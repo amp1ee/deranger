@@ -14,16 +14,16 @@ class DelayProcessor: public RackEffect
             delayLine.prepare(spec);
 
             _sampleRate = spec.sampleRate;
-            maxDelaySamples = static_cast<size_t>(spec.sampleRate * maxDelaySeconds);
+            maxDelaySamples = static_cast<float>(spec.sampleRate * maxDelaySeconds);
             delayLine.setMaximumDelayInSamples(maxDelaySamples);
             delayLine.setDelay(delayTimeSamples);
         }
 
-        [[nodiscard]] size_t getDelayTime() const { return delayTimeSamples; }
+        [[nodiscard]] float getDelayTime() const { return delayTimeSamples; }
 
         void setDelayTime(float millis, double sampleRate)
         {
-            delayTimeSamples = static_cast<size_t>((millis / 1000.0f) * sampleRate);
+            delayTimeSamples = static_cast<float>((millis / 1000.0f) * sampleRate);
             delayLine.setDelay(delayTimeSamples);
         }
 
@@ -53,9 +53,9 @@ class DelayProcessor: public RackEffect
         void updateRandomly() override
         {
             printf("\n%s: Updating randomly\n", __FILE__);
-            feedback = 0.4f + rand.nextFloat() * 0.4f; // 0.4 - 0.8;
-            float randomFactor = 0.85f + 0.77f * rand.nextFloat();
-            delayLine.setDelay(delayTimeSamples * randomFactor);
+            setFeedback(0.4f + rand.nextFloat() * 0.4f); // 0.4 - 0.8;
+            float randomFactor = 0.85f + 33.0f * rand.nextFloat();
+            setDelayTime(maxDelaySeconds * randomFactor, _sampleRate);
         }
 
         std::string getName() override { return "Delay"; };
@@ -65,8 +65,8 @@ class DelayProcessor: public RackEffect
         const float maxDelaySeconds = 3.0f;
         juce::dsp::DelayLine<float> delayLine { static_cast<int>(maxDelaySeconds)
                                                 * static_cast<int>(_sampleRate) }; // Max buffer for 2s at 44.1kHz
-        size_t maxDelaySamples = _sampleRate;
-        size_t delayTimeSamples = 2400;
+        float maxDelaySamples = _sampleRate;
+        float delayTimeSamples = 2400;
         float mix = 0.5f;
         float feedback = 0.5f;
         juce::Random rand;

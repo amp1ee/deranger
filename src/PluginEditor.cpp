@@ -7,16 +7,18 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     : AudioProcessorEditor(&p), audioProcessor(p) {
   // Make sure that before the constructor has finished, you've set the
   // editor's size to whatever you need it to be.
-  setSize(400, 500);
+  setSize(400, 600);
   // load Image from BinaryData
   svgimg = juce::Drawable::createFromImageData(BinaryData::jucelogo_svg,
                                                BinaryData::jucelogo_svgSize);
+
+  addAndMakeVisible(sliderContainer);
 
   addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, "RV Size", 0.0f, 1.0f, 0.6f);
   addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, 0.5f);
   addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, 0.5f);
   
-  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 100.0f, 21000.0f, 700.0f);
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 100.0f, 6000.0f, 1000.0f);
   addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, 0.76f);
 
   addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 0.5f, 330.0f, 42.0f);
@@ -25,7 +27,10 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
   p.getRack().getRoot().onEffectParamsChanged = [this](RackEffect* effect, const std::string& name)
   {
+    if (effect) {
+      printf("Calling updateSliderValues(%s)...\n", name.c_str());
       updateSliderValues(*effect, name);
+    }
   };
 
   // === Reverb Sliders ===
@@ -89,7 +94,10 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
 }
 
-EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {}
+EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
+    
+    audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
+}
 
 //==============================================================================
 void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
@@ -102,18 +110,22 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
 
   g.setColour(juce::Colours::black);
   g.setFont(30.0f);
-  g.drawFittedText("Hello World!", getLocalBounds(),
-                   juce::Justification::centred, 1);
+  //g.drawFittedText("Hello World!", getLocalBounds(),
+  //                 juce::Justification::centred, 1);
 }
 
 void EffectRackAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(20);
   int rowHeight = 40;
-  int spacing = 10;
+  int spacing = 14;
+
+  sliderContainer.setBounds(10, 10, getWidth() - 20, getHeight() - 20);
 
   auto row = [&]() {
       return bounds.removeFromTop(rowHeight + spacing).withHeight(rowHeight);
   };
+
+  bounds.removeFromTop(spacing * 3);
 
   reverbRoomSizeSlider.setBounds(row());
   reverbWetSlider.setBounds(row());
@@ -149,26 +161,30 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
 
     label.setText(name, juce::dontSendNotification);
     label.attachToComponent(&slider, false);
-    label.setColour(juce::Label::textColourId, juce::Colours::white);
-    label.setFont(juce::Font(15.0f, juce::Font::bold));
+    label.setColour(juce::Label::textColourId, juce::Colours::ghostwhite);
+
+    label.setFont(juce::FontOptions(15, 1)); // 1 - Bold, see @juce::Font::FontStyleFlags
     addAndMakeVisible(label);
+
+    sliders.add(&slider);
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
 {
   auto nomsg = juce::dontSendNotification;
 
-  if (effectName == "Reverb") { // Uses juce::Reverb::Parameters structure;
+  if (effectName == "Reverb") {
     auto *rev = dynamic_cast<ReverbProcessor *>(&effect);
-    juce::dsp::Reverb::Parameters p = rev->getParameters();
+    juce::dsp::Reverb::Parameters par = rev->getParameters();
     
-    reverbRoomSizeSlider.setValue(p.roomSize, nomsg);
-    reverbDampingSlider.setValue(p.damping, nomsg);
-    reverbWetSlider.setValue(p.wetLevel, nomsg);
+    reverbRoomSizeSlider.setValue(par.roomSize, nomsg);
+    reverbDampingSlider.setValue(par.damping, nomsg);
+    reverbWetSlider.setValue(par.wetLevel, nomsg);
 
   } else if (effectName == "Delay") {
     auto *del = dynamic_cast<DelayProcessor *>(&effect);
 
+    //printf("\t\tdel: %f\n", del->getDelayTime());
     delayTimeSlider.setValue(del->getDelayTime(), nomsg);
     delayFeedbackSlider.setValue(del->getFeedback(), nomsg);
 

@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "LabelWithBackground.h"
 
 //==============================================================================
 /**
@@ -26,14 +27,14 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   std::unique_ptr<juce::Drawable> svgimg;
 
   // Reverb Sliders
-  juce::Slider reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;
-  juce::Label  reverbRoomSizeLabel,  reverbWetLabel,  reverbDampingLabel;
+  juce::Slider        reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;
+  LabelWithBackground reverbRoomSizeLabel,  reverbWetLabel,  reverbDampingLabel;
   // Delay Sliders
-  juce::Slider delayTimeSlider, delayFeedbackSlider;
-  juce::Label  delayTimeLabel,  delayFeedbackLabel;
+  juce::Slider        delayTimeSlider, delayFeedbackSlider;
+  LabelWithBackground delayTimeLabel,  delayFeedbackLabel;
   // Flanger Sliders
-  juce::Slider flangerDepthSlider, flangerFeedbackSlider, flangerDelaySlider;
-  juce::Label flangerDepthLabel, flangerFeedbackLabel, flangerDelayLabel;
+  juce::Slider        flangerDepthSlider, flangerFeedbackSlider, flangerDelaySlider;
+  LabelWithBackground flangerDepthLabel, flangerFeedbackLabel, flangerDelayLabel;
 
   // Sliders helper
   void addAndConfigureSlider(juce::Slider& slider, juce::Label& label,
@@ -41,6 +42,10 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
     float min, float max, float initial);
 
   void updateSliderValues(RackEffect& effect, std::string effectName);
+
+  juce::GroupComponent sliderContainer {"Sliders" };
+  juce::OwnedArray<juce::Slider> sliders;
+  static constexpr int numSliders = 8;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessorEditor)
 };

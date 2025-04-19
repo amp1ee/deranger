@@ -48,6 +48,7 @@ target_sources(ExamplePlugin PRIVATE
     ReverbProcessor.h
     DelayProcessor.h
     FlangerProcessor.h
+    LabelWithBackground.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE
