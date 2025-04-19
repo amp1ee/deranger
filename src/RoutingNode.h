@@ -13,10 +13,20 @@ public:
     std::vector<std::unique_ptr<RoutingNode>> children;
     std::function<void(RackEffect* effect, const std::string& name)> onEffectParamsChanged{};
 
-    bool isParallel = false;
+    bool isParallel = true;
+    juce::AudioBuffer<float> mixBuffer;
+    juce::AudioBuffer<float> tmpBuf;
+    juce::dsp::AudioBlock<float> tempBlock;
 
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        if (effect) { effect->prepare(spec); return; }
+        if (effect) { 
+            effect->prepare(spec);
+
+            mixBuffer.setSize(spec.numChannels, spec.maximumBlockSize);
+            tmpBuf.setSize(spec.numChannels, spec.maximumBlockSize);
+            return; 
+        }
+
         for (auto& child : children)
             child->prepare(spec);
     }
@@ -26,23 +36,21 @@ public:
 
         if (!children.empty()) {
             if (isParallel) {
-                juce::AudioBuffer<float> mixBuffer;
+                
                 mixBuffer.setSize(block.getNumChannels(), block.getNumSamples());
                 mixBuffer.clear();
 
                 for (auto& child : children) {
-                    juce::AudioBuffer<float> tmpBuf;
                     tmpBuf.setSize((int)block.getNumChannels(), (int)block.getNumSamples());
                     for (size_t ch = 0; ch < block.getNumChannels(); ++ch)
                         tmpBuf.copyFrom((int)ch, 0, block.getChannelPointer(ch), (int)block.getNumSamples());
-                    juce::dsp::AudioBlock<float> tempBlock(tmpBuf);
+                    tempBlock = juce::dsp::AudioBlock<float>(tmpBuf);
+
                     child->process(tempBlock);
                     for (int ch = 0; ch < mixBuffer.getNumChannels(); ++ch)
                         mixBuffer.addFrom(ch, 0, tmpBuf, ch, 0, tmpBuf.getNumSamples());
                 }
-
-                juce::dsp::AudioBlock<float> mixedBlock(mixBuffer);
-                block = mixedBlock;
+                block = juce::dsp::AudioBlock<float>(mixBuffer);
             } else {
                 for (auto& child : children)
                     child->process(block);
