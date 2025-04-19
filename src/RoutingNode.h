@@ -57,8 +57,13 @@ public:
 
         for (auto& child : children) { // randomize rest of the nodes recursively:
             child->updateRandomly();
+
             if (child->effect && onEffectParamsChanged) {
-                onEffectParamsChanged(child->effect.get(), child->effect->getName());
+                juce::MessageManager::callAsync([callback = onEffectParamsChanged,
+                                                ptr = child->effect.get(),
+                                                name = child->effect->getName()] {
+                    callback(ptr, name);
+                });
             }
         }
     }
