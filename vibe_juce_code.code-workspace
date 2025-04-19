@@ -20,6 +20,7 @@
     "git.ignoreLimitWarning": true,
     "clangd.arguments": [
       "-clang-tidy",
+      " -O3",
       "-background-index",
       "-compile-commands-dir=${workspaceFolder}/build",
       "-header-insertion=never",

@@ -38,8 +38,6 @@ class RackProcessor
             root.reset();
         }
 
-
-
         void addReverb()
         {
             auto reverb = std::make_unique<ReverbProcessor>();
@@ -60,7 +58,7 @@ class RackProcessor
         {
             auto delay = std::make_unique<DelayProcessor>();
 
-            delay->setDelayTime(1500, 44100);
+            delay->setDelayTime(4500);
             delay->setFeedback(0.7);
 
             auto node = std::make_unique<RoutingNode>();
@@ -79,6 +77,13 @@ class RackProcessor
 
             auto node = std::make_unique<RoutingNode>();
             node->effect = std::move(flanger);
+            root.children.push_back(std::move(node));
+        }
+
+        void addEnd() // End of the nodes
+        {
+            auto node = std::make_unique<RoutingNode>();
+            node->effect = nullptr;
             root.children.push_back(std::move(node));
         }
 

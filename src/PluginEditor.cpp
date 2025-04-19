@@ -5,10 +5,10 @@
 EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     EffectRackAudioProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p) {
-  // Make sure that before the constructor has finished, you've set the
-  // editor's size to whatever you need it to be.
+
+
   setSize(400, 600);
-  // load Image from BinaryData
+
   svgimg = juce::Drawable::createFromImageData(BinaryData::jucelogo_svg,
                                                BinaryData::jucelogo_svgSize);
 
@@ -18,7 +18,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, 0.5f);
   addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, 0.5f);
   
-  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 100.0f, 6000.0f, 1000.0f);
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), 4500.0f);
   addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, 0.76f);
 
   addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 0.5f, 330.0f, 42.0f);
@@ -28,7 +28,6 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   p.getRack().getRoot().onEffectParamsChanged = [this](RackEffect* effect, const std::string& name)
   {
     if (effect) {
-      printf("Calling updateSliderValues(%s)...\n", name.c_str());
       updateSliderValues(*effect, name);
     }
   };
@@ -65,7 +64,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     delayTimeSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
       {
-          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()), 44100); // adjust sample rate if needed
+          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()));
       }
     };
 

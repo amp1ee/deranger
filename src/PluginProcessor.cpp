@@ -19,6 +19,7 @@ EffectRackAudioProcessor::EffectRackAudioProcessor()
   rack.addDelay();
   rack.addFlanger();
   rack.addReverb();
+  rack.addEnd();
 }
 
 EffectRackAudioProcessor::~EffectRackAudioProcessor() {}

@@ -27,9 +27,9 @@ public:
         lfo.initialise([](float val) { return std::sin(val); });
         modTimesBuffer.setSize(1, static_cast<int>(spec.maximumBlockSize));
 
-        smoothedDelay.reset(_sampleRate, 2.5f);
-        smoothedLFODepth.reset(_sampleRate, 2.5f);
-        smoothedFeedback.reset(_sampleRate, 2.5f);
+        smoothedDelay.reset(_sampleRate, 0.15f);
+        smoothedLFODepth.reset(_sampleRate,0.15f);
+        smoothedFeedback.reset(_sampleRate, 0.15f);
         reset();
     }
 
@@ -93,7 +93,7 @@ public:
 
     void updateRandomly() override
     {
-        printf("\n%s: Updating randomly\n", __FILE__);
+        printf("\n%s: Updating randomly\n", __FILE_NAME__);
 
         this->setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
         this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 0.7f);

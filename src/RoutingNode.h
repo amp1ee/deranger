@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "RackEffect.h"
 
+
 class RoutingNode {
 public:
 
@@ -15,13 +16,13 @@ public:
     bool isParallel = false;
 
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        if (effect) effect->prepare(spec);
+        if (effect) { effect->prepare(spec); return; }
         for (auto& child : children)
             child->prepare(spec);
     }
 
     void process(juce::dsp::AudioBlock<float>& block) {
-        if (effect) effect->process(block);
+        if (effect) { effect->process(block); return; }
 
         if (!children.empty()) {
             if (isParallel) {
@@ -69,7 +70,7 @@ public:
     }
 
     void reset() {
-        if (effect) effect->reset();
+        if (effect) { effect->reset(); return; }
         for (auto& child : children)
             child->reset();
     }
