@@ -44,7 +44,6 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   void updateSliderValues(RackEffect& effect, std::string effectName);
 
   juce::GroupComponent sliderContainer {"Sliders" };
-  juce::OwnedArray<juce::Slider> sliders;
   static constexpr int numSliders = 8;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessorEditor)

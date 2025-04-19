@@ -95,7 +95,6 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 }
 
 EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
-    
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
 }
 
@@ -109,9 +108,6 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
                      juce::Justification::centred, 1);
 
   g.setColour(juce::Colours::black);
-  g.setFont(30.0f);
-  //g.drawFittedText("Hello World!", getLocalBounds(),
-  //                 juce::Justification::centred, 1);
 }
 
 void EffectRackAudioProcessorEditor::resized() {
@@ -166,7 +162,6 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
     label.setFont(juce::FontOptions(15, 1)); // 1 - Bold, see @juce::Font::FontStyleFlags
     addAndMakeVisible(label);
 
-    sliders.add(&slider);
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
