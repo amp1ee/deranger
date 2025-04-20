@@ -26,6 +26,8 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   EffectRackAudioProcessor &audioProcessor;
   std::unique_ptr<juce::Drawable> svgimg;
 
+  juce::ToggleButton  isParallelButton;
+
   // Reverb Sliders
   juce::Slider        reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;
   LabelWithBackground reverbRoomSizeLabel,  reverbWetLabel,  reverbDampingLabel;

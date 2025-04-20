@@ -32,6 +32,13 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     }
   };
 
+  isParallelButton.setButtonText("||");
+  addAndMakeVisible(isParallelButton);
+
+  isParallelButton.onStateChange = [this]() {
+    audioProcessor.getRack().getRoot().setParallel(isParallelButton.getToggleState());
+  };
+
   // === Reverb Sliders ===
     reverbRoomSizeSlider.onValueChange = [this]() {
       if (auto* reverb = findReverbProcessor())
@@ -109,6 +116,9 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
   g.setColour(juce::Colours::black);
 }
 
+
+// =====----=================== resized() ======================================== //
+//                                                                                 //
 void EffectRackAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(20);
   int rowHeight = 40;
@@ -136,6 +146,10 @@ void EffectRackAudioProcessorEditor::resized() {
   flangerDelaySlider.setBounds(row());
   flangerDepthSlider.setBounds(row());
   flangerFeedbackSlider.setBounds(row());
+
+  //bounds.removeFromTop(spacing * 2);
+  isParallelButton.setBounds(row());
+
 }
 
 void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label,
@@ -158,9 +172,8 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
     label.attachToComponent(&slider, false);
     label.setColour(juce::Label::textColourId, juce::Colours::ghostwhite);
 
-    label.setFont(juce::FontOptions(15, 1)); // 1 - Bold, see @juce::Font::FontStyleFlags
+    label.setFont(juce::FontOptions(15, 1)); // 1 = Bold (see juce::Font::FontStyleFlags)
     addAndMakeVisible(label);
-
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)

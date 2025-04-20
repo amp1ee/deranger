@@ -20,6 +20,9 @@ EffectRackAudioProcessor::EffectRackAudioProcessor()
   rack.addFlanger();
   rack.addReverb();
   rack.addEnd();
+
+  rack.printTree(&rack.getRoot(), 0);
+
 }
 
 EffectRackAudioProcessor::~EffectRackAudioProcessor() {}

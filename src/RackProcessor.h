@@ -87,6 +87,14 @@ class RackProcessor
             root.children.push_back(std::move(node));
         }
 
+        void printTree(RoutingNode* node, int indent = 0) {
+            for (int i = 0; i < indent; ++i) std::cout << "  ";
+            std::cout << "Node ID: " << node->getId() << ", children: " << node->children.size() << std::endl;
+        
+            for (auto& child : node->children)
+                printTree(child.get(), indent + 1);
+        }
+
         RoutingNode& getRoot() { return this->root; }
 
     private:
