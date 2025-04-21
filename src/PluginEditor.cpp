@@ -14,16 +14,19 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
   addAndMakeVisible(sliderContainer);
 
-  addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, "RV Size", 0.0f, 1.0f, 0.6f);
-  addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, 0.5f);
-  addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, 0.5f);
+  auto *rev = findReverbProcessor();
+  addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, "RV Size", 0.0f, 1.0f, rev->getParameters().roomSize);
+  addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, rev->getParameters().wetLevel);
+  addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, rev->getParameters().damping);
   
-  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), 4500.0f);
-  addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, 0.76f);
+  auto *del = findDelayProcessor();
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), del->getDelayTime());
+  addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, del->getFeedback());
 
-  addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 0.5f, 330.0f, 42.0f);
-  addAndConfigureSlider(flangerDepthSlider, flangerDepthLabel, "FL Depth", 0.0f, 1.0f, 0.5f);
-  addAndConfigureSlider(flangerFeedbackSlider, flangerFeedbackLabel, "FL Feedback", 0.0f, 1.0f, 0.66f);
+  auto *flg = findFlangerProcessor();
+  addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 1.0f, 20.0f, flg->getDelay());
+  addAndConfigureSlider(flangerDepthSlider, flangerDepthLabel, "FL Depth", 0.0f, 1.0f, flg->getLFODepth());
+  addAndConfigureSlider(flangerFeedbackSlider, flangerFeedbackLabel, "FL Feedback", 0.0f, 1.0f, flg->getFeedback());
 
   p.getRack().getRoot().onEffectParamsChanged = [this](RackEffect* effect, const std::string& name)
   {
@@ -32,11 +35,22 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     }
   };
 
+  // === Routing and Random Controls ===
   isParallelButton.setButtonText("||");
+  isParallelButton.setToggleState(p.getRack().getRoot().getParallel(), juce::dontSendNotification);
   addAndMakeVisible(isParallelButton);
 
+  randomizeButton.setButtonText("<?>");
+  randomizeButton.setToggleState(p.getRack().getRandomize(), juce::dontSendNotification);
+  addAndMakeVisible(randomizeButton);
+
   isParallelButton.onStateChange = [this]() {
-    audioProcessor.getRack().getRoot().setParallel(isParallelButton.getToggleState());
+    bool state = isParallelButton.getToggleState();
+    audioProcessor.getRack().getRoot().setParallel(state);
+  };
+
+  randomizeButton.onClick = [this]() {
+    audioProcessor.getRack().setRandomize(randomizeButton.getToggleState());
   };
 
   // === Reverb Sliders ===
@@ -147,9 +161,12 @@ void EffectRackAudioProcessorEditor::resized() {
   flangerDepthSlider.setBounds(row());
   flangerFeedbackSlider.setBounds(row());
 
-  //bounds.removeFromTop(spacing * 2);
-  isParallelButton.setBounds(row());
-
+  auto buttonRow = row();
+  auto left = buttonRow.removeFromLeft(buttonRow.getWidth() / 2);
+  isParallelButton.setBounds(left.reduced(4));
+  
+  auto right = buttonRow; // what's left after removing left
+  randomizeButton.setBounds(right.reduced(4));
 }
 
 void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label,

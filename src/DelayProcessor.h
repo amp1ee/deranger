@@ -47,6 +47,11 @@ class DelayProcessor: public RackEffect
             }
         }
 
+        void process(juce::dsp::ProcessContextReplacing<float>& context) override
+        {
+            process(context.getOutputBlock());
+        }
+
         void reset() override { delayLine.reset(); }
     
         void setMix(float newMix) { mix = juce::jlimit(0.0f, 1.0f, newMix); }

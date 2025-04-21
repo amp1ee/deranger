@@ -4,6 +4,7 @@ static unsigned int instanceCounter = 0;
 
 RoutingNode::RoutingNode() {
     ownId = ++instanceCounter;
+    effect = nullptr;
     printf("Creating node instance #%u\n", instanceCounter);
 }
 
@@ -14,7 +15,9 @@ void RoutingNode::prepare(const juce::dsp::ProcessSpec& spec) {
         effect->prepare(spec);
 
         mixBuffer.setSize(spec.numChannels, spec.maximumBlockSize);
+        mixBuffer.clear();
         tmpBuf.setSize(spec.numChannels, spec.maximumBlockSize);
+        tmpBuf.clear();
         return; 
     }
 
@@ -24,37 +27,56 @@ void RoutingNode::prepare(const juce::dsp::ProcessSpec& spec) {
     printf("Node children count: %zu\n", children.size());
 }
 
+/**
+*   RoutingNode structure:
+*       
+*                Root Node
+*                ____|_____
+*               /  |    |  \       
+*              /   |    |   \
+*             /    |    |    \   
+*           FX1   FX2  FX3   FX4
+*/
 void RoutingNode::process(juce::dsp::AudioBlock<float>& block) {
-    if (effect && !isParallel) { effect->process(block); return; }
+    if (effect && !isParallel) { 
+        effect->process(block);
+        return;
+    }
 
     if (!children.empty()) {
         if (isParallel) {
-            
-            mixBuffer.setSize(block.getNumChannels(), block.getNumSamples());
+            const auto numSamples = block.getNumSamples();
+            auto numChannels = block.getNumChannels();
+            // Clear the mixBuffer before mixing
+            mixBuffer.setSize(numChannels, numSamples, false, false, true);
             mixBuffer.clear();
+            auto mixBlock = juce::dsp::AudioBlock<float>(mixBuffer);
 
             for (auto& child : children) {
-                tmpBuf.setSize((int)block.getNumChannels(), (int)block.getNumSamples());
-                for (size_t ch = 0; ch < block.getNumChannels(); ++ch)
-                    tmpBuf.copyFrom((int)ch, 0, block.getChannelPointer(ch), (int)block.getNumSamples());
-                tempBlock = juce::dsp::AudioBlock<float>(tmpBuf);
+                // Prepare temporary buffer for child output
+                tmpBuf.setSize(numChannels, numSamples, false, false, true);
+                tmpBuf.clear();
 
-                printf("Processing child %d\n", child->getId());
-                child->process(tempBlock);
-                printf("Child %d processed\n", child->getId());
-                for (int ch = 0; ch < tmpBuf.getNumChannels(); ++ch)
-                {
-                    float sum = 0.0f;
-                    for (int s = 0; s < tmpBuf.getNumSamples(); ++s)
-                        sum += std::abs(tmpBuf.getSample(ch, s));
-                
-                    printf(" -> Channel %d energy: %.4f\n", ch, sum);
+                juce::dsp::AudioBlock<float> tmpBlock(tmpBuf);
+
+                juce::dsp::ProcessContextReplacing<float> context(block);
+
+                // Let the child process into tmpBlock
+                if (child->effect)
+                    child->effect->process(context);
+
+                // Mix tmpBlock into final mixBuffer
+                for (size_t ch = 0; ch < block.getNumChannels(); ++ch) {
+                    mixBlock.getChannelPointer(ch); // just ensure the block is ready
+                    for (int i = 0; i < numSamples; ++i) {
+                        mixBlock.getChannelPointer(ch)[i] += tmpBlock.getChannelPointer(ch)[i];
+                    }
                 }
-
-                for (int ch = 0; ch < mixBuffer.getNumChannels(); ++ch)
-                    mixBuffer.addFrom(ch, 0, tmpBuf, ch, 0, tmpBuf.getNumSamples());
             }
-            block = juce::dsp::AudioBlock<float>(mixBuffer);
+
+            // Overwrite original block with the mixed result
+            block = mixBlock;
+
         } else {
             for (auto& child : children)
                 child->process(block);
@@ -90,6 +112,10 @@ void RoutingNode::updateRandomly() {
             });
         }
     }
+}
+
+bool RoutingNode::getParallel() {
+    return isParallel;
 }
 
 void RoutingNode::setParallel(bool parallel) {

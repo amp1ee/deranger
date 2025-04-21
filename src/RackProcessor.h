@@ -28,7 +28,7 @@ class RackProcessor
             root.process(block);
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
-            if ((blockCounter % 128) == 0) {
+            if (toRandomize && (blockCounter % 128) == 0) {
                 root.updateRandomly();
             }
         }
@@ -71,7 +71,7 @@ class RackProcessor
             auto flanger = std::make_unique<FlangerProcessor>();
 
             flanger->setAmountOfStereo(0.8f);
-            flanger->setDelay(300.0f);
+            flanger->setDelay(10.0f);
             flanger->setFeedback(0.66f);
             flanger->setLFODepth(0.6f);
 
@@ -95,9 +95,13 @@ class RackProcessor
                 printTree(child.get(), indent + 1);
         }
 
+        [[nodiscard]] bool getRandomize() const { return this->toRandomize; }
+        void setRandomize(bool randomize) { this->toRandomize = randomize; }
+
         RoutingNode& getRoot() { return this->root; }
 
     private:
         RoutingNode root;
+        bool toRandomize = true;
         int blockCounter = 0;
 };

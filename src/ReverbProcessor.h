@@ -19,6 +19,11 @@ class ReverbProcessor : public RackEffect
             reverb.process(context);
         }
 
+        void process(juce::dsp::ProcessContextReplacing<float>& context) override
+        {
+            process(context.getOutputBlock());
+        }
+
         void reset() override
         {
             reverb.reset();
