@@ -11,8 +11,8 @@ public:
 
     void prepare(const juce::dsp::ProcessSpec& spec) override
     {
-        _sampleRate = spec.sampleRate;
-        numChannels = spec.numChannels;
+        _sampleRate = static_cast<float>(spec.sampleRate);
+        numChannels = static_cast<int>(spec.numChannels);
 
         const float maxDelayInSeconds = (maxDepth * maximumDelayModulationMs + maxCentreDelayMs) / 1000.0f;
         const int delayBufferSize = static_cast<int>(std::ceil(_sampleRate * maxDelayInSeconds));
@@ -47,36 +47,29 @@ public:
     void process(juce::dsp::AudioBlock<float> &block) override
     {
         juce::dsp::ProcessContextReplacing<float> context(block);
-
         const auto &inputBlock = context.getInputBlock();
         auto &outputBlock = context.getOutputBlock();
-        const auto numChannels = outputBlock.getNumChannels();
-        const auto numSamples = outputBlock.getNumSamples();
-
-        jassert(inputBlock.getNumChannels() == numChannels);
-        jassert(inputBlock.getNumChannels() == feedback.size());
-        jassert(inputBlock.getNumSamples() == numSamples);
+        const auto numSamples = static_cast<int>(outputBlock.getNumSamples());
 
         mixer.pushDrySamples(inputBlock);
 
-        for (size_t channel = 0; channel < numChannels; ++channel) {
-            auto *inputSamples = inputBlock.getChannelPointer(channel);
-            auto *outputSamples = outputBlock.getChannelPointer(channel);
-            float phaseOffset = (channel == 1) ? juce::MathConstants<float>::halfPi * getAmountOfStereo() : 0.0f;
+        for (int channel = 0; channel < numChannels; ++channel) {
 
-            for (size_t i = 0; i < numSamples; ++i) {
-                float input = inputSamples[i];
+            phaseOffset = (channel == 1) ? juce::MathConstants<float>::halfPi * getAmountOfStereo() : 0.0f;
 
-                float lfoValue = lfo.processSample(phaseOffset);
-                float delayCalcMs = juce::jlimit(1.0f, 20.0f, getDelay() + lfoValue * getLFODepth());
-                float delayCalcSamples = delayCalcMs * (_sampleRate / 1000.0f);
+            for (int i = 0; i < numSamples; ++i) {
+                input = inputBlock.getSample(channel, i);
+
+                lfoValue = lfo.processSample(phaseOffset);
+                delayCalcMs = juce::jlimit(1.0f, 20.0f, getDelay() + (lfoValue * getLFODepth()));
+                delayCalcSamples = delayCalcMs * (_sampleRate / 1000.0f);
                 flangerDelay.setDelay(delayCalcSamples);
 
-                float inputWithFeedback = input + feedback[channel];
-                flangerDelay.pushSample(static_cast<int>(channel), inputWithFeedback);
-                float wetSignal = flangerDelay.popSample(static_cast<int>(channel));
+                inputWithFeedback = input + feedback[channel];
+                flangerDelay.pushSample(channel, inputWithFeedback);
+                wetSignal = flangerDelay.popSample(channel);
 
-                outputSamples[i] = wetSignal;
+                outputBlock.setSample(channel, i, wetSignal);
                 feedback[channel] = wetSignal * getFeedback();
             }
         }
@@ -102,7 +95,7 @@ public:
         printf("\n%s: Updating randomly\n", __FILE_NAME__);
 
         this->setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
-        this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 10.0f); // LFO depth max ~10ms
+        this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 1.0f);
         this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.9f);
     }
 
@@ -112,7 +105,7 @@ private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> flangerDelay;
     juce::dsp::Oscillator<float> lfo;
 
-    double _sampleRate = 44100.0f;
+    float _sampleRate = 44100.0f;
     int numChannels = 0;
     float lfoDepth = 5.0f; // max mod depth ~5ms
     float lfoFreq = 0.33f;
@@ -121,6 +114,10 @@ private:
     float maxDepth = 1.0f;
     float maxCentreDelayMs = 15.0f;            // Reduced from 300ms to 15ms
     float maximumDelayModulationMs = 5.0f;     // Max mod depth ~5ms
+
+    // Preallocations ahead of the process loop:
+    float wetSignal, inputWithFeedback, lfoValue, delayCalcMs,
+                    delayCalcSamples, input, phaseOffset;
 
     std::vector<float> feedback{0.5f};
     juce::AudioBuffer<float> modTimesBuffer;
