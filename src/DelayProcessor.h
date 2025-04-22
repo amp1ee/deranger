@@ -14,6 +14,7 @@ class DelayProcessor: public RackEffect
             delayLine.prepare(spec);
 
             _sampleRate = spec.sampleRate;
+            numChannels = static_cast<int>(spec.numChannels);
             maxDelaySamples = static_cast<float>(spec.sampleRate * maxDelaySeconds);
             delayLine.setMaximumDelayInSamples(maxDelaySamples);
             delayLine.setDelay(delayTimeSamples);
@@ -30,19 +31,19 @@ class DelayProcessor: public RackEffect
             smoothedDelay.setTargetValue(delayTimeSamples);
         }
 
-        void process(juce::dsp::AudioBlock<float> &block) override
+        void process(juce::dsp::AudioBlock<float>& block) override
         {
-            for (size_t ch = 0; ch < block.getNumChannels(); ch++)
+            const auto numSamples = static_cast<int>(block.getNumSamples());
+        
+            for (int ch = 0; ch < numChannels; ++ch)
             {
-                auto *channelData = block.getChannelPointer(ch);
-
-                for (size_t i = 0; i < block.getNumSamples(); i++)
+                for (int i = 0; i < numSamples; ++i)
                 {
-                    float in = channelData[i];
-                    float delayed = delayLine.popSample(ch);
+                    in = block.getSample(ch, i);
+                    delayed = delayLine.popSample(ch);
                     delayLine.setDelay(smoothedDelay.getNextValue());
-                    delayLine.pushSample(ch, in + getFeedback() * delayed);
-                    channelData[i] = mix * delayed + (1.0f - mix) * in;
+                    delayLine.pushSample(ch, in + (getFeedback() * delayed));
+                    block.setSample(ch, i, (mix * delayed) + (1.0f - mix) * in);
                 }
             }
         }
@@ -78,6 +79,10 @@ class DelayProcessor: public RackEffect
         float delayTimeSamples = 2400.0f;
         float mix = 0.5f;
         float feedback = 0.5f;
+
+        // Preallocating before the process loop
+        int numChannels; float in, delayed;
+
         juce::Random rand;
         juce::LinearSmoothedValue<float> smoothedDelay = { maxDelaySamples };
         juce::LinearSmoothedValue<float> smoothedFeedback = { feedback };
