@@ -92,8 +92,6 @@ public:
 
     void updateRandomly() override
     {
-        printf("\n%s: Updating randomly\n", __FILE_NAME__);
-
         this->setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
         this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 1.0f);
         this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.9f);

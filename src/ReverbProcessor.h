@@ -40,12 +40,10 @@ class ReverbProcessor : public RackEffect
 
         void updateRandomly() override
         {
-            printf("\n%s: Updating randomly\n", __FILE_NAME__);
-            float roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
-            float damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
-            float wet     = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
+            roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
+            damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
+            wet     = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
 
-            juce::dsp::Reverb::Parameters p;
             p.roomSize = roomSize;
             p.damping  = damping;
             p.wetLevel = wet;
@@ -58,4 +56,8 @@ class ReverbProcessor : public RackEffect
     private:
         juce::dsp::Reverb reverb;
         juce::Random rand;
+
+        // Preallocating for randomization
+        juce::dsp::Reverb::Parameters p;
+        float roomSize, damping, wet;
 };

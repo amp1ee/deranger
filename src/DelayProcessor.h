@@ -62,7 +62,6 @@ class DelayProcessor: public RackEffect
 
         void updateRandomly() override
         {
-            printf("\n%s: Updating randomly\n", __FILE_NAME__);
             setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8;
             setDelayTime(rand.nextFloat() * maxDelaySamples);
         }
