@@ -62,11 +62,19 @@ class DelayProcessor: public RackEffect
 
         void updateRandomly() override
         {
-            setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8;
-            setDelayTime(rand.nextFloat() * maxDelaySamples);
+            if (feedbackRandomize)
+                setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8
+            if (delayTimeRandomize)
+                setDelayTime(rand.nextFloat() * maxDelaySamples);
         }
 
         std::string getName() override { return "Delay"; };
+
+        [[nodiscard]] bool getFeedbackRandomize()  const { return this->feedbackRandomize; }
+        [[nodiscard]] bool getDelayTimeRandomize() const { return this->delayTimeRandomize; }
+
+        void setFeedbackRandomize(bool shouldRandomize)  { feedbackRandomize = shouldRandomize; }
+        void setDelayTimeRandomize(bool shouldRandomize) { delayTimeRandomize = shouldRandomize; }
 
     private:
         double _sampleRate = 44100.0f;
@@ -78,6 +86,8 @@ class DelayProcessor: public RackEffect
         float delayTimeSamples = 2400.0f;
         float mix = 0.5f;
         float feedback = 0.5f;
+        bool feedbackRandomize = true;
+        bool delayTimeRandomize = true;
 
         // Preallocating before the process loop
         int numChannels; float in, delayed;

@@ -88,12 +88,21 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
           delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()));
       }
     };
-
     delayFeedbackSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
       {
           delay->setFeedback(static_cast<float>(delayFeedbackSlider.getValue()));
       }
+    };
+
+    // === Delay Toggles ===
+    delayTimeToggle.onClick = [this]() {
+      if (auto* delay = findDelayProcessor())
+          delay->setDelayTimeRandomize(delayTimeToggle.getToggleState());
+    };
+    delayFeedbackToggle.onClick = [this]() {
+      if (auto* delay = findDelayProcessor())
+          delay->setFeedbackRandomize(delayFeedbackToggle.getToggleState());
     };
 
     // === Flanger Sliders ===
@@ -219,6 +228,7 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
     addAndMakeVisible(label);
 
     addAndMakeVisible(toggle);
+    toggle.setToggleState(true, juce::dontSendNotification);
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
