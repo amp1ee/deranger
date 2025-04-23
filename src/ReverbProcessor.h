@@ -21,7 +21,7 @@ class ReverbProcessor : public RackEffect
 
         void process(juce::dsp::ProcessContextReplacing<float>& context) override
         {
-            process(context.getOutputBlock());
+            reverb.process(context);
         }
 
         void reset() override
@@ -40,13 +40,10 @@ class ReverbProcessor : public RackEffect
 
         void updateRandomly() override
         {
-            roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
-            damping = 0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
-            wet     = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
-
-            p.roomSize = roomSize;
-            p.damping  = damping;
-            p.wetLevel = wet;
+            p = reverb.getParameters();
+            p.roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
+            p.damping =  0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
+            p.wetLevel = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
 
             reverb.setParameters(p);
         }
@@ -56,8 +53,5 @@ class ReverbProcessor : public RackEffect
     private:
         juce::dsp::Reverb reverb;
         juce::Random rand;
-
-        // Preallocating for randomization
         juce::dsp::Reverb::Parameters p;
-        float roomSize, damping, wet;
 };
