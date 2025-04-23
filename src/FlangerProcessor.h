@@ -46,18 +46,18 @@ public:
     void process(juce::dsp::AudioBlock<float> &block) override
     {
         juce::dsp::ProcessContextReplacing<float> context(block);
-        const auto &inputBlock = context.getInputBlock();
-        auto &outputBlock = context.getOutputBlock();
-        const auto numSamples = static_cast<int>(outputBlock.getNumSamples());
+        inputBlock =  &context.getInputBlock();
+        outputBlock = &context.getOutputBlock();
+        numSamples = static_cast<int>(outputBlock->getNumSamples());
 
-        mixer.pushDrySamples(inputBlock);
+        mixer.pushDrySamples(*inputBlock);
 
         for (int channel = 0; channel < numChannels; ++channel) {
 
             phaseOffset = (channel == 1) ? juce::MathConstants<float>::halfPi * getAmountOfStereo() : 0.0f;
 
             for (int i = 0; i < numSamples; ++i) {
-                input = inputBlock.getSample(channel, i);
+                input = inputBlock->getSample(channel, i);
 
                 lfoValue = lfo.processSample(phaseOffset);
                 delayCalcMs = juce::jlimit(1.0f, 20.0f, getDelay() + (lfoValue * getLFODepth()));
@@ -68,12 +68,12 @@ public:
                 flangerDelay.pushSample(channel, inputWithFeedback);
                 wetSignal = flangerDelay.popSample(channel);
 
-                outputBlock.setSample(channel, i, wetSignal);
+                outputBlock->setSample(channel, i, wetSignal);
                 feedback[channel] = wetSignal * getFeedback();
             }
         }
 
-        mixer.mixWetSamples(outputBlock);
+        mixer.mixWetSamples(*outputBlock);
     }
 
     void process(juce::dsp::ProcessContextReplacing<float>& context) override
@@ -114,7 +114,7 @@ private:
     juce::dsp::Oscillator<float> lfo;
 
     float _sampleRate = 44100.0f;
-    int numChannels = 0;
+    int numChannels = 0, numSamples;
 
     float lfoDepth = 5.0f; // max mod depth ~5ms
     float lfoFreq = 0.33f;
@@ -127,6 +127,8 @@ private:
     // Preallocations ahead of the process loop:
     float wetSignal, inputWithFeedback, lfoValue, delayCalcMs,
                     delayCalcSamples, input, phaseOffset;
+    const juce::dsp::AudioBlock<const float> *inputBlock;
+    juce::dsp::AudioBlock<float> *outputBlock;
 
     std::vector<float> feedback{0.5f};
     

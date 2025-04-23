@@ -29,11 +29,12 @@ class DelayProcessor: public RackEffect
         {
             delayTimeSamples = millis;
             smoothedDelay.setTargetValue(delayTimeSamples);
+            delayLine.setDelay(smoothedDelay.getNextValue());
         }
 
         void process(juce::dsp::AudioBlock<float>& block) override
         {
-            const auto numSamples = static_cast<int>(block.getNumSamples());
+            numSamples = static_cast<int>(block.getNumSamples());
         
             for (int ch = 0; ch < numChannels; ++ch)
             {
@@ -90,7 +91,7 @@ class DelayProcessor: public RackEffect
         bool delayTimeRandomize = true;
 
         // Preallocating before the process loop
-        int numChannels; float in, delayed;
+        int numChannels, numSamples; float in, delayed;
 
         juce::Random rand;
         juce::LinearSmoothedValue<float> smoothedDelay = { maxDelaySamples };
