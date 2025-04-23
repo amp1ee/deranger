@@ -27,9 +27,9 @@ public:
         lfo.setFrequency(lfoFreq);
         lfo.initialise([](float val) { return std::sin(val); });
 
-        smoothedDelay.reset(_sampleRate, 0.5f);
-        smoothedLFODepth.reset(_sampleRate, 0.15f);
-        smoothedFeedback.reset(_sampleRate, 0.15f);
+        smoothedDelay.reset(_sampleRate, 0.01f);
+        smoothedLFODepth.reset(_sampleRate, 0.02f);
+        smoothedFeedback.reset(_sampleRate, 0.04f);
         reset();
     }
 
