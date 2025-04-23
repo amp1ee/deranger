@@ -41,17 +41,33 @@ class ReverbProcessor : public RackEffect
         void updateRandomly() override
         {
             p = reverb.getParameters();
-            p.roomSize = 0.4f + rand.nextFloat() * 0.5f;  // 0.4 - 0.9
-            p.damping =  0.1f + rand.nextFloat() * 0.7f;   // 0.1 - 0.8
-            p.wetLevel = 0.2f + rand.nextFloat() * 0.8f;   // 0.2 - 1.0
+
+            if (roomSizeRandomize)
+                p.roomSize = 0.4f + rand.nextFloat() * 0.5f; // 0.4 - 0.9
+            if (dampingRandomize)
+                p.damping = 0.1f + rand.nextFloat() * 0.7f; // 0.1 - 0.8
+            if (wetLevelRandomize)
+                p.wetLevel = 0.2f + rand.nextFloat() * 0.8f; // 0.2 - 1.0
 
             reverb.setParameters(p);
         }
 
         std::string getName() override { return "Reverb"; };
 
+        void setRoomSizeRandomize(bool shouldRandomize) { roomSizeRandomize = shouldRandomize; }
+        void setDampingRandomize(bool shouldRandomize) { dampingRandomize = shouldRandomize; }
+        void setWetLevelRandomize(bool shouldRandomize) { wetLevelRandomize = shouldRandomize; }
+
+        [[nodiscard]] bool getRoomSizeRandomize() const { return roomSizeRandomize; }
+        [[nodiscard]] bool getDampingRandomize() const { return dampingRandomize; }
+        [[nodiscard]] bool getWetLevelRandomize() const { return wetLevelRandomize; }
+
     private:
         juce::dsp::Reverb reverb;
         juce::Random rand;
         juce::dsp::Reverb::Parameters p;
+
+        bool roomSizeRandomize = true;
+        bool dampingRandomize = true;
+        bool wetLevelRandomize = true;
 };

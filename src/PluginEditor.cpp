@@ -81,6 +81,22 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
       }
     };
 
+    // === Reverb Toggles ===
+    reverbRoomSizeToggle.onClick = [this]() {
+      if (auto* reverb = findReverbProcessor())
+          reverb->setRoomSizeRandomize(reverbRoomSizeToggle.getToggleState());
+    };
+
+    reverbWetToggle.onClick = [this]() {
+      if (auto* reverb = findReverbProcessor())
+          reverb->setWetLevelRandomize(reverbWetToggle.getToggleState());
+    };
+
+    reverbDampingToggle.onClick = [this]() {
+      if (auto* reverb = findReverbProcessor())
+          reverb->setDampingRandomize(reverbDampingToggle.getToggleState());
+    };
+
     // === Delay Sliders ===
     delayTimeSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
