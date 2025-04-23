@@ -15,18 +15,18 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   addAndMakeVisible(sliderContainer);
 
   auto *rev = findReverbProcessor();
-  addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, "RV Size", 0.0f, 1.0f, rev->getParameters().roomSize);
-  addAndConfigureSlider(reverbWetSlider, reverbWetLabel, "RV Wet", 0.0f, 1.0f, rev->getParameters().wetLevel);
-  addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, "RV Damping", 0.0f, 1.0f, rev->getParameters().damping);
+  addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, reverbRoomSizeToggle, "RV Size", 0.0f, 1.0f, rev->getParameters().roomSize);
+  addAndConfigureSlider(reverbWetSlider, reverbWetLabel, reverbWetToggle, "RV Wet", 0.0f, 1.0f, rev->getParameters().wetLevel);
+  addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, reverbDampingToggle, "RV Damping", 0.0f, 1.0f, rev->getParameters().damping);
   
   auto *del = findDelayProcessor();
-  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), del->getDelayTime());
-  addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, "DL Feedback", 0.0f, 1.0f, del->getFeedback());
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, delayTimeToggle, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), del->getDelayTime());
+  addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, delayFeedbackToggle, "DL Feedback", 0.0f, 1.0f, del->getFeedback());
 
   auto *flg = findFlangerProcessor();
-  addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, "FL Time", 1.0f, 20.0f, flg->getDelay());
-  addAndConfigureSlider(flangerDepthSlider, flangerDepthLabel, "FL Depth", 0.0f, 1.0f, flg->getLFODepth());
-  addAndConfigureSlider(flangerFeedbackSlider, flangerFeedbackLabel, "FL Feedback", 0.0f, 1.0f, flg->getFeedback());
+  addAndConfigureSlider(flangerDelaySlider, flangerDelayLabel, flangerDelayToggle, "FL Time", 1.0f, 20.0f, flg->getDelay());
+  addAndConfigureSlider(flangerDepthSlider, flangerDepthLabel, flangerDepthToggle, "FL Depth", 0.0f, 1.0f, flg->getLFODepth());
+  addAndConfigureSlider(flangerFeedbackSlider, flangerFeedbackLabel, flangerFeedbackToggle, "FL Feedback", 0.0f, 1.0f, flg->getFeedback());
 
   p.getRack().getRoot().onEffectParamsChanged = [this](RackEffect* effect, const std::string& name)
   {
@@ -136,6 +136,7 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
 void EffectRackAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(20);
   int rowHeight = 40;
+  int toggleWidth = rowHeight / 2 + 2;
   int spacing = 14;
 
   sliderContainer.setBounds(10, 10, getWidth() - 20, getHeight() - 20);
@@ -146,20 +147,44 @@ void EffectRackAudioProcessorEditor::resized() {
 
   bounds.removeFromTop(spacing * 3);
 
-  reverbRoomSizeSlider.setBounds(row());
-  reverbWetSlider.setBounds(row());
-  reverbDampingSlider.setBounds(row());
+  auto sliderBounds = row();
+  auto toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  reverbRoomSizeSlider.setBounds(sliderBounds);
+  reverbRoomSizeToggle.setBounds(toggleBounds);
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  reverbWetSlider.setBounds(sliderBounds);
+  reverbWetToggle.setBounds(toggleBounds);
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  reverbDampingSlider.setBounds(sliderBounds);
+  reverbDampingToggle.setBounds(toggleBounds);
 
   bounds.removeFromTop(spacing * 2); // extra space between groups
 
-  delayTimeSlider.setBounds(row());
-  delayFeedbackSlider.setBounds(row());
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  delayTimeSlider.setBounds(sliderBounds);
+  delayTimeToggle.setBounds(toggleBounds);
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  delayFeedbackSlider.setBounds(sliderBounds);
+  delayFeedbackToggle.setBounds(toggleBounds);
 
   bounds.removeFromTop(spacing * 2);
 
-  flangerDelaySlider.setBounds(row());
-  flangerDepthSlider.setBounds(row());
-  flangerFeedbackSlider.setBounds(row());
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  flangerDelaySlider.setBounds(sliderBounds);
+  flangerDelayToggle.setBounds(toggleBounds);
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  flangerDepthSlider.setBounds(sliderBounds);
+  flangerDepthToggle.setBounds(toggleBounds);
+  sliderBounds = row();
+  toggleBounds = sliderBounds.removeFromRight(toggleWidth);
+  flangerFeedbackSlider.setBounds(sliderBounds);
+  flangerFeedbackToggle.setBounds(toggleBounds);
 
   auto buttonRow = row();
   auto left = buttonRow.removeFromLeft(buttonRow.getWidth() / 2);
@@ -169,13 +194,14 @@ void EffectRackAudioProcessorEditor::resized() {
   randomizeButton.setBounds(right.reduced(4));
 }
 
-void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label,
+void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
   const juce::String& name,
   float min, float max, float initial)
   {
     slider.setSliderStyle(juce::Slider::LinearHorizontal);
     slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 60, 20);
     slider.setRange(min, max);
+    slider.setNumDecimalPlacesToDisplay(3);
     slider.setValue(initial);
     slider.setColour(juce::Slider::thumbColourId, juce::Colours::aqua);
     slider.setColour(juce::Slider::trackColourId, juce::Colours::darkcyan);
@@ -191,6 +217,8 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
 
     label.setFont(juce::FontOptions(15, 1)); // 1 = Bold (see juce::Font::FontStyleFlags)
     addAndMakeVisible(label);
+
+    addAndMakeVisible(toggle);
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)

@@ -32,17 +32,19 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   // Reverb Sliders
   juce::Slider        reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;
   LabelWithBackground reverbRoomSizeLabel,  reverbWetLabel,  reverbDampingLabel;
+  juce::ToggleButton  reverbRoomSizeToggle, reverbWetToggle, reverbDampingToggle;
   // Delay Sliders
   juce::Slider        delayTimeSlider, delayFeedbackSlider;
   LabelWithBackground delayTimeLabel,  delayFeedbackLabel;
+  juce::ToggleButton  delayTimeToggle, delayFeedbackToggle;
   // Flanger Sliders
   juce::Slider        flangerDepthSlider, flangerFeedbackSlider, flangerDelaySlider;
-  LabelWithBackground flangerDepthLabel, flangerFeedbackLabel, flangerDelayLabel;
+  LabelWithBackground flangerDepthLabel,  flangerFeedbackLabel,  flangerDelayLabel;
+  juce::ToggleButton  flangerDepthToggle, flangerFeedbackToggle, flangerDelayToggle;
 
   // Sliders helper
-  void addAndConfigureSlider(juce::Slider& slider, juce::Label& label,
-    const juce::String& name,
-    float min, float max, float initial);
+  void addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
+                             const juce::String& name, float min, float max, float initial);
 
   void updateSliderValues(RackEffect& effect, std::string effectName);
 
