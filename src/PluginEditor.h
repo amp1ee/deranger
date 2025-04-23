@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "LabelWithBackground.h"
+#include "ToggleLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -42,7 +43,10 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   LabelWithBackground flangerDepthLabel,  flangerFeedbackLabel,  flangerDelayLabel;
   juce::ToggleButton  flangerDepthToggle, flangerFeedbackToggle, flangerDelayToggle;
 
-  // Sliders helper
+  juce::TooltipWindow tooltipWindow;
+  ToggleLookAndFeel toggleLookAndFeel;
+
+  // Sliders helpers
   void addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
                              const juce::String& name, float min, float max, float initial);
 

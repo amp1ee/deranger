@@ -137,6 +137,22 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
           flanger->setFeedback(static_cast<float>(flangerFeedbackSlider.getValue()));
     };
 
+    // === Flanger Toggles ===
+    flangerDelayToggle.onClick = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setDelayRandomize(flangerDelayToggle.getToggleState());
+    };
+
+    flangerDepthToggle.onClick = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setDepthRandomize(flangerDepthToggle.getToggleState());
+    };
+
+    flangerFeedbackToggle.onClick = [this]() {
+      if (auto* flanger = findFlangerProcessor())
+          flanger->setFeedbackRandomize(flangerFeedbackToggle.getToggleState());
+    };
+
 }
 
 EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
@@ -149,8 +165,8 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
   // solid colour)
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-  svgimg->drawWithin(g, getLocalBounds().toFloat(),
-                     juce::Justification::centred, 1);
+  svgimg->drawWithin(g, getLocalBounds().reduced(24).toFloat(),
+                    juce::Justification::centred, 1);
 
   g.setColour(juce::Colours::black);
 }
@@ -243,8 +259,12 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
     label.setFont(juce::FontOptions(15, 1)); // 1 = Bold (see juce::Font::FontStyleFlags)
     addAndMakeVisible(label);
 
-    addAndMakeVisible(toggle);
+    toggle.setColour(juce::ToggleButton::tickColourId, juce::Colours::aqua);
+    toggle.setLookAndFeel(&toggleLookAndFeel);
+    toggle.setTooltip(name + " Randomize");
     toggle.setToggleState(true, juce::dontSendNotification);
+    addAndMakeVisible(toggle);
+
 }
 
 void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)

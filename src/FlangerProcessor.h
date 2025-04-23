@@ -26,9 +26,8 @@ public:
 
         lfo.setFrequency(lfoFreq);
         lfo.initialise([](float val) { return std::sin(val); });
-        modTimesBuffer.setSize(1, static_cast<int>(spec.maximumBlockSize));
 
-        smoothedDelay.reset(_sampleRate, 0.15f);
+        smoothedDelay.reset(_sampleRate, 0.5f);
         smoothedLFODepth.reset(_sampleRate, 0.15f);
         smoothedFeedback.reset(_sampleRate, 0.15f);
         reset();
@@ -92,12 +91,23 @@ public:
 
     void updateRandomly() override
     {
-        this->setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
-        this->setLFODepth(juce::Random::getSystemRandom().nextFloat() * 1.0f);
-        this->setFeedback(juce::Random::getSystemRandom().nextFloat() * 0.9f);
+        if (delayRandomize)
+            setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
+        if (depthRandomize)
+            setLFODepth(juce::Random::getSystemRandom().nextFloat() * maxDepth);
+        if (feedbackRandomize)
+            setFeedback(juce::Random::getSystemRandom().nextFloat());
     }
 
     std::string getName() override { return "Flanger"; };
+
+    void setDelayRandomize(bool shouldRandomize) { delayRandomize = shouldRandomize; }
+    void setDepthRandomize(bool shouldRandomize) { depthRandomize = shouldRandomize; }
+    void setFeedbackRandomize(bool shouldRandomize) { feedbackRandomize = shouldRandomize; }
+
+    [[nodiscard]] bool getDelayRandomize() const { return delayRandomize; }
+    [[nodiscard]] bool getDepthRandomize() const { return depthRandomize; }
+    [[nodiscard]] bool getFeedbackRandomize() const { return feedbackRandomize; }
 
 private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> flangerDelay;
@@ -105,6 +115,7 @@ private:
 
     float _sampleRate = 44100.0f;
     int numChannels = 0;
+
     float lfoDepth = 5.0f; // max mod depth ~5ms
     float lfoFreq = 0.33f;
     float stereoWidth = 0.6f;
@@ -118,9 +129,13 @@ private:
                     delayCalcSamples, input, phaseOffset;
 
     std::vector<float> feedback{0.5f};
-    juce::AudioBuffer<float> modTimesBuffer;
+    
     juce::dsp::DryWetMixer<float> mixer;
     juce::LinearSmoothedValue<float> smoothedDelay = { maxCentreDelayMs };
     juce::LinearSmoothedValue<float> smoothedLFODepth = { lfoDepth };
     juce::LinearSmoothedValue<float> smoothedFeedback = { feedback[0] };
+
+    bool delayRandomize = true;
+    bool depthRandomize = true;
+    bool feedbackRandomize = true;
 };

@@ -50,6 +50,7 @@ target_sources(ExamplePlugin PRIVATE
     DelayProcessor.h
     FlangerProcessor.h
     LabelWithBackground.h
+    ToggleLookAndFeel.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE

@@ -19,7 +19,7 @@ class DelayProcessor: public RackEffect
             delayLine.setMaximumDelayInSamples(maxDelaySamples);
             delayLine.setDelay(delayTimeSamples);
 
-            smoothedDelay.reset(_sampleRate, 0.15f);
+            smoothedDelay.reset(_sampleRate, 0.5f);
             smoothedFeedback.reset(_sampleRate, 0.15f);
         }
 
