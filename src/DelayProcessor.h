@@ -19,8 +19,8 @@ class DelayProcessor: public RackEffect
             delayLine.setMaximumDelayInSamples(maxDelaySamples);
             delayLine.setDelay(delayTimeSamples);
 
-            smoothedDelay.reset(_sampleRate, 0.15f);
-            smoothedFeedback.reset(_sampleRate, 0.15f);
+            smoothedDelay.reset(_sampleRate, 0.01f);
+            smoothedFeedback.reset(_sampleRate, 0.02f);
         }
 
         [[nodiscard]] float getDelayTime() { return smoothedDelay.getNextValue(); }
@@ -29,11 +29,12 @@ class DelayProcessor: public RackEffect
         {
             delayTimeSamples = millis;
             smoothedDelay.setTargetValue(delayTimeSamples);
+            delayLine.setDelay(smoothedDelay.getNextValue());
         }
 
         void process(juce::dsp::AudioBlock<float>& block) override
         {
-            const auto numSamples = static_cast<int>(block.getNumSamples());
+            numSamples = static_cast<int>(block.getNumSamples());
         
             for (int ch = 0; ch < numChannels; ++ch)
             {
@@ -62,11 +63,19 @@ class DelayProcessor: public RackEffect
 
         void updateRandomly() override
         {
-            setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8;
-            setDelayTime(rand.nextFloat() * maxDelaySamples);
+            if (feedbackRandomize)
+                setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8
+            if (delayTimeRandomize)
+                setDelayTime(rand.nextFloat() * maxDelaySamples);
         }
 
         std::string getName() override { return "Delay"; };
+
+        [[nodiscard]] bool getFeedbackRandomize()  const { return this->feedbackRandomize; }
+        [[nodiscard]] bool getDelayTimeRandomize() const { return this->delayTimeRandomize; }
+
+        void setFeedbackRandomize(bool shouldRandomize)  { feedbackRandomize = shouldRandomize; }
+        void setDelayTimeRandomize(bool shouldRandomize) { delayTimeRandomize = shouldRandomize; }
 
     private:
         double _sampleRate = 44100.0f;
@@ -78,9 +87,11 @@ class DelayProcessor: public RackEffect
         float delayTimeSamples = 2400.0f;
         float mix = 0.5f;
         float feedback = 0.5f;
+        bool feedbackRandomize = true;
+        bool delayTimeRandomize = true;
 
         // Preallocating before the process loop
-        int numChannels; float in, delayed;
+        int numChannels, numSamples; float in, delayed;
 
         juce::Random rand;
         juce::LinearSmoothedValue<float> smoothedDelay = { maxDelaySamples };
