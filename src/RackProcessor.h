@@ -5,6 +5,7 @@
 #include "DelayProcessor.h"
 #include "FlangerProcessor.h"
 #include "RoutingNode.h"
+#include "signalsmith-stretch.h"
 
 using juce::Reverb;
 
@@ -20,12 +21,45 @@ class RackProcessor
         void prepare(const juce::dsp::ProcessSpec &spec)
         {
             root.prepare(spec);
+            stretch.presetDefault(static_cast<int>(spec.numChannels),
+                                 static_cast<float>(spec.sampleRate));
+            stretch.setTransposeSemitones(-5);
         }
 
         void process(juce::dsp::AudioBlock<float> &block)
         {
             blockCounter++;
             root.process(block);
+
+            // Determine input and output sample counts
+            const int inputSamples = static_cast<int>(block.getNumSamples());
+            const int outputSamples = inputSamples; // Adjust as needed for time-stretching
+
+            const int numChannels = static_cast<int>(block.getNumChannels());
+
+            // Prepare input pointers
+            std::vector<float*> inputPointers(numChannels);
+            for (int ch = 0; ch < numChannels; ++ch) {
+                inputPointers[ch] = block.getChannelPointer(ch);
+            }
+
+            // Prepare output buffer
+            juce::AudioBuffer<float> outputBuffer(numChannels, outputSamples);
+            outputBuffer.clear();
+
+            // Prepare output pointers
+            std::vector<float*> outputPointers(numChannels);
+            for (int ch = 0; ch < numChannels; ++ch) {
+                outputPointers[ch] = outputBuffer.getWritePointer(ch);
+            }
+
+            // Process with Signalsmith Stretch
+            stretch.process(inputPointers.data(), inputSamples, outputPointers.data(), outputSamples);
+
+            // Copy processed data back to the original block
+            for (int ch = 0; ch < numChannels; ++ch) {
+                std::memcpy(block.getChannelPointer(ch), outputPointers[ch], outputSamples * sizeof(float));
+            }
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
             if (toRandomize && (blockCounter % 128) == 0) {
@@ -36,6 +70,7 @@ class RackProcessor
         void reset()
         {
             root.reset();
+            stretch.reset();
         }
 
         void addReverb()
@@ -102,6 +137,8 @@ class RackProcessor
 
     private:
         RoutingNode root;
+        signalsmith::stretch::SignalsmithStretch<float> stretch;
+
         bool toRandomize = true;
         int blockCounter = 0;
 };
