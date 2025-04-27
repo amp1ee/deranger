@@ -43,11 +43,6 @@ jobs:
         key: juce-${{ runner.os }}-${{ hashFiles('lib/JUCE/**') }}
         restore-keys: |
           juce-${{ runner.os }}-
- 
-    - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v2
-      with:
-        version: "20.0"
 
     - name: Configure CMake
       run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
