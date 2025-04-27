@@ -29,7 +29,6 @@ class RackProcessor
         void process(juce::dsp::AudioBlock<float> &block)
         {
             blockCounter++;
-            root.process(block);
 
             // Determine input and output sample counts
             const int inputSamples = static_cast<int>(block.getNumSamples());
@@ -60,6 +59,9 @@ class RackProcessor
             for (int ch = 0; ch < numChannels; ++ch) {
                 std::memcpy(block.getChannelPointer(ch), outputPointers[ch], outputSamples * sizeof(float));
             }
+
+            // Process the audio block through the routing tree
+            root.process(block);
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
             if (toRandomize && (blockCounter % 128) == 0) {
