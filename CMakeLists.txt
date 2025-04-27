@@ -6,7 +6,7 @@ VERSION 0.0.2
 )
 
 if(MSVC)
-    add_compile_options(/W0)  # Disables all warnings for MSVC
+    add_compile_options(/w)  # Disables all warnings for MSVC
 endif()
 
 # for clang-tidy(this enable to find system header files).
