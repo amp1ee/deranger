@@ -32,7 +32,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: lib/JUCE/.git
-        key: juce-${{ runner.os }}-${{ hashFiles('lib/JUCE/.gitmodules') }}
+        key: juce-${{ runner.os }}-${{ hashFiles('.gitmodules') }}
         restore-keys: |
           juce-${{ runner.os }}-
 
