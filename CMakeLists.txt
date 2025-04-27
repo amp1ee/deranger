@@ -5,9 +5,8 @@ LANGUAGES CXX C
 VERSION 0.0.2
 )
 
-# Disable warning C2397 for narrowing conversions if using MSVC
 if(MSVC)
-    add_compile_options(/wd2397)
+    add_compile_options(/W0)  # Disables all warnings for MSVC
 endif()
 
 # for clang-tidy(this enable to find system header files).
