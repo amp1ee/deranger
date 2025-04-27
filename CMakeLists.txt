@@ -5,13 +5,6 @@ LANGUAGES CXX C
 VERSION 0.0.2
 )
 
-if(MSVC AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    message(STATUS "MSVC detected — forcing ClangCL for better C++ standard compliance")
-    # Force use of ClangCL instead of MSVC cl.exe
-    set(CMAKE_C_COMPILER "C:/Program Files/LLVM/bin/clang-cl.exe" CACHE STRING "" FORCE)
-    set(CMAKE_CXX_COMPILER "C:/Program Files/LLVM/bin/clang-cl.exe" CACHE STRING "" FORCE)
-endif()
-
 # for clang-tidy(this enable to find system header files).
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
