@@ -2,7 +2,6 @@
 Combines Reverb -> Delay -> Flanger in series or in parallel, can randomize parameters and stretch audio
 
 This project has been bootstrapped from:
-
 [**JUCE CMake VSCode Example**](https://github.com/tomoyanonymous/juce_cmake_vscode_example)
 
 ---
