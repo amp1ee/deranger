@@ -16,12 +16,15 @@ This project has been bootstrapped from:
 
 ## Build Status
 
-[![CMake on Windows platform](https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml/badge.svg?branch=signalsmith-stretch)](https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml)
+<p align="center">
+  <a href="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml">
+    <img src="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml/badge.svg?branch=signalsmith-stretch" alt="CMake on Windows platform" />
+  </a>
+</p>
 
 ---
 
-## Technology Stack
+<p align="center">
+  <img src="https://img.shields.io/badge/⚡%20Hacked%20with-%E2%9D%A4%20JUCE%20+%20%F0%9F%9B%A0%EF%B8%8F%20C++-black?style=for-the-badge" alt="Hacked with JUCE + C++"/>
+</p>
 
-![Hacked with JUCE + C++](https://img.shields.io/badge/⚡%20Hacked%20with-%E2%9D%A4%20JUCE%20+%20%F0%9F%9B%A0%EF%B8%8F%20C++-black?style=for-the-badge)
-
----
