@@ -16,6 +16,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   //==============================================================================
   void paint(juce::Graphics &) override;
   void resized() override;
+  void takeSnapshotOfGUI (juce::Component* comp);
 
   DelayProcessor*   findDelayProcessor();
   ReverbProcessor*  findReverbProcessor();

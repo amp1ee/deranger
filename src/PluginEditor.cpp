@@ -244,6 +244,37 @@ void EffectRackAudioProcessorEditor::resized() {
 
   auto right = buttonRow; // what's left after removing middle...
   stretchButton.setBounds(right.reduced(4));
+
+  static bool snapshotTaken = false;
+  if (!snapshotTaken) {
+      juce::MessageManager::callAsync([this]() {
+        takeSnapshotOfGUI(this);  // Capture the snapshot of the entire editor component
+      });
+      snapshotTaken = true;
+  }
+}
+
+void EffectRackAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
+{
+    juce::File projectDir = juce::File::getCurrentWorkingDirectory();
+    juce::File shotPng = projectDir.getChildFile("snapshot.png");
+    // Create the snapshot of the component
+    juce::Image snapShot = comp->createComponentSnapshot(comp->getLocalBounds());
+
+    int shotWidth = comp->getWidth();
+    int shotHeight = (snapShot.getHeight() * shotWidth) / snapShot.getWidth();
+    juce::Image shot = snapShot.rescaled(shotWidth, shotHeight);
+
+    // Write the image to file
+    if (juce::ImageFileFormat* format = juce::ImageFileFormat::findImageFormatForFileExtension(shotPng))
+    {
+        juce::FileOutputStream out(shotPng);
+        if (out.openedOk())
+        {
+            // Write the resized thumbnail to the output stream
+            format->writeImageToStream(shot, out);
+        }
+    }
 }
 
 void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
