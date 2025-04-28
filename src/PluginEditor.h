@@ -29,6 +29,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
 
   juce::ToggleButton  isParallelButton;
   juce::ToggleButton  randomizeButton;
+  juce::ToggleButton  stretchButton;
 
   // Reverb Sliders
   juce::Slider        reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;

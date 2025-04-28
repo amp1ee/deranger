@@ -30,35 +30,8 @@ class RackProcessor
         {
             blockCounter++;
 
-            // Determine input and output sample counts
-            const int inputSamples = static_cast<int>(block.getNumSamples());
-            const int outputSamples = inputSamples; // Adjust as needed for time-stretching
-
-            const int numChannels = static_cast<int>(block.getNumChannels());
-
-            // Prepare input pointers
-            std::vector<float*> inputPointers(numChannels);
-            for (int ch = 0; ch < numChannels; ++ch) {
-                inputPointers[ch] = block.getChannelPointer(ch);
-            }
-
-            // Prepare output buffer
-            juce::AudioBuffer<float> outputBuffer(numChannels, outputSamples);
-            outputBuffer.clear();
-
-            // Prepare output pointers
-            std::vector<float*> outputPointers(numChannels);
-            for (int ch = 0; ch < numChannels; ++ch) {
-                outputPointers[ch] = outputBuffer.getWritePointer(ch);
-            }
-
-            // Process with Signalsmith Stretch
-            stretch.process(inputPointers.data(), inputSamples, outputPointers.data(), outputSamples);
-
-            // Copy processed data back to the original block
-            for (int ch = 0; ch < numChannels; ++ch) {
-                std::memcpy(block.getChannelPointer(ch), outputPointers[ch], outputSamples * sizeof(float));
-            }
+            if (stretchEnabled)
+                stretchBlock(block);
 
             // Process the audio block through the routing tree
             root.process(block);
@@ -132,15 +105,52 @@ class RackProcessor
                 printTree(child.get(), indent + 1);
         }
 
-        [[nodiscard]] bool getRandomize() const { return this->toRandomize; }
-        void setRandomize(bool randomize) { this->toRandomize = randomize; }
+        [[nodiscard]] bool getRandomize()      const { return this->toRandomize; }
+        void setRandomize(bool randomize)            { this->toRandomize = randomize; }
+        [[nodiscard]] bool getStretchEnabled() const { return this->stretchEnabled; }
+        void setStretchEnabled(bool stretch)            { this->stretchEnabled = stretch; }
 
         RoutingNode& getRoot() { return this->root; }
+
+    protected:
+        void stretchBlock(juce::dsp::AudioBlock<float> &block) {
+
+            // Determine input and output sample counts
+            const int inputSamples = static_cast<int>(block.getNumSamples()); 
+            const int outputSamples = inputSamples; // Adjust as needed for time-stretching
+ 
+            const int numChannels = static_cast<int>(block.getNumChannels());
+ 
+            // Prepare input pointers
+            std::vector<float*> inputPointers(numChannels);
+            for (int ch = 0; ch < numChannels; ++ch) {
+                inputPointers[ch] = block.getChannelPointer(ch);
+            }
+ 
+            // Prepare output buffer
+            juce::AudioBuffer<float> outputBuffer(numChannels, outputSamples);
+            outputBuffer.clear();
+
+            // Prepare output pointer 
+            std::vector<float*> outputPointers(numChannels);
+            for (int ch = 0; ch < numChannels; ++ch) {
+                outputPointers[ch] = outputBuffer.getWritePointer(ch);
+            }
+ 
+            // Process with Signalsmith Stretch
+            stretch.process(inputPointers.data(), inputSamples, outputPointers.data(), outputSamples);
+
+            // Copy processed data back to the original block 
+            for (int ch = 0; ch < numChannels; ++ch) {
+                std::memcpy(block.getChannelPointer(ch), outputPointers[ch], outputSamples * sizeof(float));
+            }
+        }
 
     private:
         RoutingNode root;
         signalsmith::stretch::SignalsmithStretch<float> stretch;
 
         bool toRandomize = true;
+        bool stretchEnabled = true;
         int blockCounter = 0;
 };
