@@ -1,4 +1,5 @@
-# Project Overview
+# Effect Rack
+Combines Reverb -> Delay -> Flanger in series or in parallel, can randomize parameters and stretch audio
 
 This project has been bootstrapped from:
 
