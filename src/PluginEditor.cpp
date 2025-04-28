@@ -44,7 +44,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   randomizeButton.setToggleState(p.getRack().getRandomize(), juce::dontSendNotification);
   addAndMakeVisible(randomizeButton);
 
-  stretchButton.setButtonText("~,/`\\,/`~");  // ~,/`\,/`~
+  stretchButton.setButtonText(juce::String::fromUTF8("↑↓"));
   stretchButton.setToggleState(p.getRack().getStretchEnabled(), juce::dontSendNotification);
   addAndMakeVisible(stretchButton);
 
