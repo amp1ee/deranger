@@ -24,6 +24,12 @@ juce_add_plugin(ExamplePlugin
 
 target_compile_features(ExamplePlugin PUBLIC cxx_std_17)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(ExamplePlugin PRIVATE -finput-charset=UTF-8)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(ExamplePlugin PRIVATE /utf-8)
+endif()
+
 target_compile_definitions(ExamplePlugin
     PUBLIC
     # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
@@ -51,6 +57,10 @@ target_sources(ExamplePlugin PRIVATE
     FlangerProcessor.h
     LabelWithBackground.h
     ToggleLookAndFeel.h
+
+    fft.h
+    stft.h
+    signalsmith-stretch.h
 )
 
 target_link_libraries(ExamplePlugin PRIVATE

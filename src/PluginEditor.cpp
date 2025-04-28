@@ -40,9 +40,13 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   isParallelButton.setToggleState(p.getRack().getRoot().getParallel(), juce::dontSendNotification);
   addAndMakeVisible(isParallelButton);
 
-  randomizeButton.setButtonText("<?>");
+  randomizeButton.setButtonText("[?]");
   randomizeButton.setToggleState(p.getRack().getRandomize(), juce::dontSendNotification);
   addAndMakeVisible(randomizeButton);
+
+  stretchButton.setButtonText(juce::String::fromUTF8("↑↓"));
+  stretchButton.setToggleState(p.getRack().getStretchEnabled(), juce::dontSendNotification);
+  addAndMakeVisible(stretchButton);
 
   isParallelButton.onStateChange = [this]() {
     bool state = isParallelButton.getToggleState();
@@ -51,6 +55,10 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
   randomizeButton.onClick = [this]() {
     audioProcessor.getRack().setRandomize(randomizeButton.getToggleState());
+  };
+
+  stretchButton.onClick = [this]() {
+    audioProcessor.getRack().setStretchEnabled(stretchButton.getToggleState());
   };
 
   // === Reverb Sliders ===
@@ -228,11 +236,45 @@ void EffectRackAudioProcessorEditor::resized() {
   flangerFeedbackToggle.setBounds(toggleBounds);
 
   auto buttonRow = row();
-  auto left = buttonRow.removeFromLeft(buttonRow.getWidth() / 2);
+  auto left = buttonRow.removeFromLeft(buttonRow.getWidth() / 3);
   isParallelButton.setBounds(left.reduced(4));
-  
-  auto right = buttonRow; // what's left after removing left
-  randomizeButton.setBounds(right.reduced(4));
+ 
+  auto middle = buttonRow.removeFromLeft(buttonRow.getWidth() / 2);
+  randomizeButton.setBounds(middle.reduced(4));
+
+  auto right = buttonRow; // what's left after removing middle...
+  stretchButton.setBounds(right.reduced(4));
+
+  static bool snapshotTaken = false;
+  if (!snapshotTaken) {
+      juce::MessageManager::callAsync([this]() {
+        takeSnapshotOfGUI(this);  // Capture the snapshot of the entire editor component
+      });
+      snapshotTaken = true;
+  }
+}
+
+void EffectRackAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
+{
+    juce::File projectDir = juce::File::getCurrentWorkingDirectory();
+    juce::File shotPng = projectDir.getChildFile("snapshot.png");
+    // Create the snapshot of the component
+    juce::Image snapShot = comp->createComponentSnapshot(comp->getLocalBounds());
+
+    int shotWidth = comp->getWidth();
+    int shotHeight = (snapShot.getHeight() * shotWidth) / snapShot.getWidth();
+    juce::Image shot = snapShot.rescaled(shotWidth, shotHeight);
+
+    // Write the image to file
+    if (juce::ImageFileFormat* format = juce::ImageFileFormat::findImageFormatForFileExtension(shotPng))
+    {
+        juce::FileOutputStream out(shotPng);
+        if (out.openedOk())
+        {
+            // Write the resized thumbnail to the output stream
+            format->writeImageToStream(shot, out);
+        }
+    }
 }
 
 void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,

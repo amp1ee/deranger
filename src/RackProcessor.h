@@ -5,6 +5,7 @@
 #include "DelayProcessor.h"
 #include "FlangerProcessor.h"
 #include "RoutingNode.h"
+#include "signalsmith-stretch.h"
 
 using juce::Reverb;
 
@@ -20,11 +21,19 @@ class RackProcessor
         void prepare(const juce::dsp::ProcessSpec &spec)
         {
             root.prepare(spec);
+            stretch.presetDefault(static_cast<int>(spec.numChannels),
+                                 static_cast<float>(spec.sampleRate));
+            stretch.setTransposeSemitones(-5);
         }
 
         void process(juce::dsp::AudioBlock<float> &block)
         {
             blockCounter++;
+
+            if (stretchEnabled)
+                stretchBlock(block);
+
+            // Process the audio block through the routing tree
             root.process(block);
 
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
@@ -36,6 +45,7 @@ class RackProcessor
         void reset()
         {
             root.reset();
+            stretch.reset();
         }
 
         void addReverb()
@@ -95,13 +105,60 @@ class RackProcessor
                 printTree(child.get(), indent + 1);
         }
 
-        [[nodiscard]] bool getRandomize() const { return this->toRandomize; }
-        void setRandomize(bool randomize) { this->toRandomize = randomize; }
+        [[nodiscard]] bool getRandomize()      const { return this->toRandomize; }
+        void setRandomize(bool randomize)            { this->toRandomize = randomize; }
+        [[nodiscard]] bool getStretchEnabled() const { return this->stretchEnabled; }
+        void setStretchEnabled(bool stretch)            { this->stretchEnabled = stretch; }
 
         RoutingNode& getRoot() { return this->root; }
 
+    protected:
+
+        void stretchBlock(juce::dsp::AudioBlock<float> &block) {
+            // Determine input and output sample counts
+            inputSamples = static_cast<int>(block.getNumSamples()); 
+            outputSamples = inputSamples; // Adjust as needed for time-stretching
+            numChannels = static_cast<int>(block.getNumChannels());
+ 
+            // Prepare input pointers
+            if (inputPointers.size() != numChannels) {
+                inputPointers.resize(numChannels);
+                outputPointers.resize(numChannels);
+            }
+            for (int ch = 0; ch < numChannels; ++ch) {
+                inputPointers[ch] = block.getChannelPointer(ch);
+            }
+
+            // Resize output buffer only if necessary (e.g., if numChannels or outputSamples changes)
+            if (outputBuffer.getNumChannels() != numChannels || outputBuffer.getNumSamples() != outputSamples) {
+                outputBuffer.setSize(numChannels, outputSamples);
+                outputBuffer.clear();
+            }        
+            // Prepare output pointers
+            for (int ch = 0; ch < numChannels; ++ch) {
+                outputPointers[ch] = outputBuffer.getWritePointer(ch);
+            }
+
+            // Process with Signalsmith Stretch
+            stretch.process(inputPointers.data(), inputSamples, outputPointers.data(), outputSamples);
+
+            // Copy processed data back to the original block 
+            for (int ch = 0; ch < numChannels; ++ch) {
+                std::memcpy(block.getChannelPointer(ch), outputPointers[ch], outputSamples * sizeof(float));
+            }
+        }
+
     private:
         RoutingNode root;
+        signalsmith::stretch::SignalsmithStretch<float> stretch;
+
         bool toRandomize = true;
+        bool stretchEnabled = true;
         int blockCounter = 0;
+
+        // Vars for stretchBlock():
+        int inputSamples, outputSamples, numChannels;
+        std::vector<float*> inputPointers;
+        std::vector<float*> outputPointers;
+        juce::AudioBuffer<float> outputBuffer;
 };

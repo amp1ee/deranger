@@ -16,6 +16,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   //==============================================================================
   void paint(juce::Graphics &) override;
   void resized() override;
+  void takeSnapshotOfGUI (juce::Component* comp);
 
   DelayProcessor*   findDelayProcessor();
   ReverbProcessor*  findReverbProcessor();
@@ -29,6 +30,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
 
   juce::ToggleButton  isParallelButton;
   juce::ToggleButton  randomizeButton;
+  juce::ToggleButton  stretchButton;
 
   // Reverb Sliders
   juce::Slider        reverbRoomSizeSlider, reverbWetSlider, reverbDampingSlider;
