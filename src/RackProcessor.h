@@ -110,6 +110,8 @@ class RackProcessor
         [[nodiscard]] bool getStretchEnabled() const { return this->stretchEnabled; }
         void setStretchEnabled(bool stretch)            { this->stretchEnabled = stretch; }
 
+        void setBPM(double bpm) { this->currentBPM = bpm; }
+
         RoutingNode& getRoot() { return this->root; }
 
     protected:
@@ -155,6 +157,7 @@ class RackProcessor
         bool toRandomize = true;
         bool stretchEnabled = true;
         int blockCounter = 0;
+        double currentBPM = 120.0;
 
         // Vars for stretchBlock():
         int inputSamples, outputSamples, numChannels;

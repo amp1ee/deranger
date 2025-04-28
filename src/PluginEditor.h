@@ -48,6 +48,9 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   juce::TooltipWindow tooltipWindow;
   ToggleLookAndFeel toggleLookAndFeel;
 
+  juce::Label bpmLabel;
+  double _currentBpm = 0.0f;
+
   // Sliders helpers
   void addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
                              const juce::String& name, float min, float max, float initial);

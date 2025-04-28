@@ -135,6 +135,21 @@ void EffectRackAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
       buffer.clear(i, 0, buffer.getNumSamples());
   }
 
+  if (!juce::JUCEApplicationBase::isStandaloneApp())
+  {
+    if (auto* playhead = getPlayHead())
+    {
+        if (auto positionInfo = playhead->getPosition())
+        {
+            if (positionInfo->getBpm().hasValue() && (*(positionInfo->getBpm()) != currentBPM))
+            {
+              currentBPM = *(positionInfo->getBpm());
+              rack.setBPM(currentBPM);
+            }
+        }
+    }
+  }
+
   // Create AudioBlock from the AudioBuffer for processing
   juce::dsp::AudioBlock<float> block(buffer);
 

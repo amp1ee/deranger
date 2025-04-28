@@ -41,6 +41,7 @@ target_compile_definitions(EffectRack
 
 juce_add_binary_data(BinaryAssets SOURCES
     ${CMAKE_SOURCE_DIR}/assets/juce-logo.svg
+    ${CMAKE_SOURCE_DIR}/assets/amplee.svg
 )
 
 target_sources(EffectRack PRIVATE

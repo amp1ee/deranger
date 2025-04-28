@@ -47,9 +47,18 @@ class EffectRackAudioProcessor : public juce::AudioProcessor {
   void setStateInformation(const void *data, int sizeInBytes) override;
 
   RackProcessor& getRack();
+  double getCurrentBPM() const { return currentBPM; }
 
  private:
+  RackProcessor rack;
+
+  // BPM Sync
+  double currentBPM = 0.0;
+  bool   isPlaying = false;
+  int    timeSigNumerator = 4;
+  int    timeSigDenominator = 4;
+  double ppqPosition = 0.0;
+
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessor)
-  RackProcessor rack;
 };

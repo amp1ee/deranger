@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-PROJECT(JUCE_CMAKE_EXAMPLE
+PROJECT(EffectRack
 LANGUAGES CXX C
 VERSION 0.0.2
 )
