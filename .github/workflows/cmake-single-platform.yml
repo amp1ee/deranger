@@ -69,12 +69,12 @@ jobs:
     - name: Upload VST3 Plugin
       uses: actions/upload-artifact@v4
       with:
-        name: ExamplePluginVST3
-        path: ${{ github.workspace }}/build/src/ExamplePlugin_artefacts/Debug/VST3/ExamplePlugin.vst3
+        name: EffectRackVST3
+        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/VST3/EffectRack.vst3
 
     - name: Upload Standalone Plugin
       uses: actions/upload-artifact@v4
       with:
-        name: ExamplePluginStandalone
-        path: ${{ github.workspace }}/build/src/ExamplePlugin_artefacts/Debug/Standalone/ExamplePlugin.exe
+        name: EffectRackStandalone
+        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/Standalone/EffectRack.exe
 
