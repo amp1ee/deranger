@@ -78,8 +78,8 @@ void EffectRackAudioProcessor::changeProgramName(int index,
 //==============================================================================
 void EffectRackAudioProcessor::prepareToPlay(double sampleRate,
                                              int samplesPerBlock) {
-  // Use this method as the place to do any pre-playback
-  // initialisation that you need..
+  
+  _sampleRate = sampleRate;
 
   // Prepare the RackProcessor with the ProcessSpec
   juce::dsp::ProcessSpec spec{};
@@ -133,6 +133,25 @@ void EffectRackAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Clear any unused output channels (same as in your current code)
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
       buffer.clear(i, 0, buffer.getNumSamples());
+  }
+
+  if (!juce::JUCEApplicationBase::isStandaloneApp())
+  {
+    if (auto* playhead = getPlayHead())
+    {
+        if (auto positionInfo = playhead->getPosition())
+        {          
+          if (positionInfo->getBpm().hasValue()) {
+            nowBpm = static_cast<float>(*(positionInfo->getBpm()));
+
+            if (nowBpm != currentBPM)
+            {
+              currentBPM = nowBpm;
+              rack.setBPM(currentBPM);
+            }
+          }
+        }
+    }
   }
 
   // Create AudioBlock from the AudioBuffer for processing

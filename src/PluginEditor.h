@@ -8,7 +8,8 @@
 //==============================================================================
 /**
  */
-class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
+class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor,
+                                       private juce::Timer {
  public:
  EffectRackAudioProcessorEditor(EffectRackAudioProcessor &);
   ~EffectRackAudioProcessorEditor() override;
@@ -16,6 +17,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
   //==============================================================================
   void paint(juce::Graphics &) override;
   void resized() override;
+  void timerCallback() override;
   void takeSnapshotOfGUI (juce::Component* comp);
 
   DelayProcessor*   findDelayProcessor();
@@ -47,6 +49,9 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor {
 
   juce::TooltipWindow tooltipWindow;
   ToggleLookAndFeel toggleLookAndFeel;
+
+  juce::Label bpmLabel;
+  double _currentBpm = 0.0f;
 
   // Sliders helpers
   void addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,

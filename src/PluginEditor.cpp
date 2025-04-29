@@ -9,8 +9,8 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
   setSize(400, 600);
 
-  svgimg = juce::Drawable::createFromImageData(BinaryData::jucelogo_svg,
-                                               BinaryData::jucelogo_svgSize);
+  svgimg = juce::Drawable::createFromImageData(BinaryData::amplee_svg,
+                                                 BinaryData::amplee_svgSize);
 
   addAndMakeVisible(sliderContainer);
 
@@ -47,6 +47,16 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   stretchButton.setButtonText(juce::String::fromUTF8("↑↓"));
   stretchButton.setToggleState(p.getRack().getStretchEnabled(), juce::dontSendNotification);
   addAndMakeVisible(stretchButton);
+
+  if (!juce::JUCEApplicationBase::isStandaloneApp())
+  {
+    bpmLabel.setText("BPM: " + juce::String(p.getCurrentBPM(), 2), juce::dontSendNotification);
+    bpmLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    bpmLabel.setJustificationType(juce::Justification::centredRight);
+    bpmLabel.attachToComponent(&stretchButton, false);
+    addAndMakeVisible(bpmLabel);
+    startTimerHz(10);
+  }
 
   isParallelButton.onStateChange = [this]() {
     bool state = isParallelButton.getToggleState();
@@ -163,8 +173,27 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
 }
 
+void EffectRackAudioProcessorEditor::timerCallback()
+{
+    float bpm = audioProcessor.getCurrentBPM();  // Atomic safe read
+
+    bpmLabel.setText("BPM: " + juce::String(bpm, 2), juce::dontSendNotification);
+}
+
 EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
+    svgimg = nullptr;
+    reverbRoomSizeToggle.setLookAndFeel(nullptr);
+    reverbWetToggle.setLookAndFeel(nullptr);
+    reverbDampingToggle.setLookAndFeel(nullptr);
+    delayTimeToggle.setLookAndFeel(nullptr);
+    delayFeedbackToggle.setLookAndFeel(nullptr);
+    flangerDelayToggle.setLookAndFeel(nullptr);
+    flangerDepthToggle.setLookAndFeel(nullptr);
+    flangerFeedbackToggle.setLookAndFeel(nullptr);
+    isParallelButton.setLookAndFeel(nullptr);
+    randomizeButton.setLookAndFeel(nullptr);
+    stretchButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -178,7 +207,6 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
 
   g.setColour(juce::Colours::black);
 }
-
 
 // =====----=================== resized() ======================================== //
 //                                                                                 //
@@ -252,6 +280,12 @@ void EffectRackAudioProcessorEditor::resized() {
       });
       snapshotTaken = true;
   }
+
+  if (_currentBpm != audioProcessor.getCurrentBPM()) {
+    _currentBpm = audioProcessor.getCurrentBPM();
+    bpmLabel.setText("BPM: " + juce::String(_currentBpm, 2), 
+                          juce::dontSendNotification);
+  }
 }
 
 void EffectRackAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
@@ -324,7 +358,6 @@ void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std:
   } else if (effectName == "Delay") {
     auto *del = dynamic_cast<DelayProcessor *>(&effect);
 
-    //printf("\t\tdel: %f\n", del->getDelayTime());
     delayTimeSlider.setValue(del->getDelayTime(), nomsg);
     delayFeedbackSlider.setValue(del->getFeedback(), nomsg);
 

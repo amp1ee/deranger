@@ -42,7 +42,7 @@ public:
     RoutingNode& get(const unsigned id);
     unsigned     getId();
     std::string  getName();
-    void         updateRandomly();
+    void         updateRandomly(float bpm);
     bool         getParallel();
     void         setParallel(bool parallel);
 };

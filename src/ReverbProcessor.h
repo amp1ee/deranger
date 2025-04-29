@@ -38,7 +38,7 @@ class ReverbProcessor : public RackEffect
             reverb.setParameters(params);
         }
 
-        void updateRandomly() override
+        void updateRandomly(float /*bpm*/) override
         {
             p = reverb.getParameters();
 
