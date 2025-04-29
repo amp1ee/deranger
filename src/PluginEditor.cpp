@@ -48,6 +48,25 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   stretchButton.setToggleState(p.getRack().getStretchEnabled(), juce::dontSendNotification);
   addAndMakeVisible(stretchButton);
 
+  // Stretch Semitone Knob
+  addAndMakeVisible(stretchSemitoneKnob);
+  stretchSemitoneKnob.setSliderStyle(juce::Slider::Rotary);
+  stretchSemitoneKnob.setTextBoxStyle(juce::Slider::TextBoxRight, false, 28, 18);
+  stretchSemitoneKnob.setRange(-12, 12, 1);
+  stretchSemitoneKnob.setValue(audioProcessor.getRack().getStretchSemitones());
+  stretchSemitoneKnob.setNumDecimalPlacesToDisplay(0);
+  stretchSemitoneKnob.setColour(juce::Slider::thumbColourId, juce::Colours::aqua);
+  stretchSemitoneKnob.setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::aqua);
+  stretchSemitoneKnob.setColour(juce::Slider::textBoxTextColourId, juce::Colours::white);
+  stretchSemitoneKnob.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+  stretchSemitoneKnob.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::darkslategrey);
+
+  stretchSemitoneKnob.onValueChange = [this]() {
+      int semitone = static_cast<int>(stretchSemitoneKnob.getValue());
+      audioProcessor.getRack().setStretchSemitones(semitone);
+  };
+
+
   if (!juce::JUCEApplicationBase::isStandaloneApp())
   {
     bpmLabel.setText("BPM: " + juce::String(p.getCurrentBPM(), 2), juce::dontSendNotification);
@@ -270,8 +289,13 @@ void EffectRackAudioProcessorEditor::resized() {
   auto middle = buttonRow.removeFromLeft(buttonRow.getWidth() / 2);
   randomizeButton.setBounds(middle.reduced(4));
 
-  auto right = buttonRow; // what's left after removing middle...
-  stretchButton.setBounds(right.reduced(4));
+  auto stretchGroup = buttonRow;
+  auto stretchToggleBounds = stretchGroup.removeFromLeft(rowHeight + 8); // toggle square
+  stretchButton.setBounds(stretchToggleBounds.reduced(4));
+  
+  int knobSize = 75;
+  auto knobArea = stretchGroup.removeFromLeft(rowHeight + 16); // knob size
+  stretchSemitoneKnob.setBounds(knobArea.withSizeKeepingCentre(knobSize, knobSize));
 
   static bool snapshotTaken = false;
   if (!snapshotTaken) {
