@@ -20,6 +20,7 @@ class RackProcessor
 
         void prepare(const juce::dsp::ProcessSpec &spec)
         {
+            _sampleRate = static_cast<float>(spec.sampleRate);
             root.prepare(spec);
             stretch.presetDefault(static_cast<int>(spec.numChannels),
                                  static_cast<float>(spec.sampleRate));
@@ -36,8 +37,16 @@ class RackProcessor
             // Process the audio block through the routing tree
             root.process(block);
 
+            if (!juce::JUCEApplicationBase::isStandaloneApp()) {
+                secondsPerBeat = 60.0f / currentBPM;
+                blockSamples = block.getNumSamples();
+                secondsPerBlock = blockSamples / _sampleRate;
+                blocksPerBeat = secondsPerBeat / secondsPerBlock;
+                blocksPerUpdate = (int)(blocksPerBeat * 4);
+            } else
+                blocksPerUpdate = 128;
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
-            if (toRandomize && (blockCounter % 128) == 0) {
+            if (toRandomize && (blockCounter % blocksPerUpdate) == 0) {
                 root.updateRandomly();
             }
         }
@@ -157,7 +166,13 @@ class RackProcessor
         bool toRandomize = true;
         bool stretchEnabled = true;
         int blockCounter = 0;
-        double currentBPM = 120.0;
+        int blocksPerUpdate = 128;
+        int blockSamples = 0;
+
+        float secondsPerBeat, secondsPerBlock;
+        float beatsPerUpdate = 1.0f, blocksPerBeat = 1.0f;
+        float _sampleRate = 44100.0f;
+        double currentBPM = 1.0;
 
         // Vars for stretchBlock():
         int inputSamples, outputSamples, numChannels;

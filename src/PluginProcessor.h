@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <atomic>
 #include "RackProcessor.h"
 
 //==============================================================================
@@ -47,18 +48,15 @@ class EffectRackAudioProcessor : public juce::AudioProcessor {
   void setStateInformation(const void *data, int sizeInBytes) override;
 
   RackProcessor& getRack();
-  double getCurrentBPM() const { return currentBPM; }
+  float getCurrentBPM() const { return currentBPM; }
 
  private:
   RackProcessor rack;
 
   // BPM Sync
-  double currentBPM = 0.0;
-  bool   isPlaying = false;
-  int    timeSigNumerator = 4;
-  int    timeSigDenominator = 4;
-  double ppqPosition = 0.0;
-
+  std::atomic<float> currentBPM = 0.0f;
+  float  nowBpm = 0.0f;
+  double _sampleRate = 44100.0;
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessor)
 };

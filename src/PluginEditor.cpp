@@ -55,6 +55,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     bpmLabel.setJustificationType(juce::Justification::centredRight);
     bpmLabel.attachToComponent(&stretchButton, false);
     addAndMakeVisible(bpmLabel);
+    startTimerHz(10);
   }
 
   isParallelButton.onStateChange = [this]() {
@@ -172,6 +173,13 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
 }
 
+void EffectRackAudioProcessorEditor::timerCallback()
+{
+    float bpm = audioProcessor.getCurrentBPM();  // Atomic safe read
+
+    bpmLabel.setText("BPM: " + juce::String(bpm, 2), juce::dontSendNotification);
+}
+
 EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
 }
@@ -187,7 +195,6 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
 
   g.setColour(juce::Colours::black);
 }
-
 
 // =====----=================== resized() ======================================== //
 //                                                                                 //
