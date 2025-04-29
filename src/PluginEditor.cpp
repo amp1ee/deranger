@@ -182,6 +182,18 @@ void EffectRackAudioProcessorEditor::timerCallback()
 
 EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
+    svgimg = nullptr;
+    reverbRoomSizeToggle.setLookAndFeel(nullptr);
+    reverbWetToggle.setLookAndFeel(nullptr);
+    reverbDampingToggle.setLookAndFeel(nullptr);
+    delayTimeToggle.setLookAndFeel(nullptr);
+    delayFeedbackToggle.setLookAndFeel(nullptr);
+    flangerDelayToggle.setLookAndFeel(nullptr);
+    flangerDepthToggle.setLookAndFeel(nullptr);
+    flangerFeedbackToggle.setLookAndFeel(nullptr);
+    isParallelButton.setLookAndFeel(nullptr);
+    randomizeButton.setLookAndFeel(nullptr);
+    stretchButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
