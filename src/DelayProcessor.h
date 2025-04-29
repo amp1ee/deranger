@@ -61,12 +61,25 @@ class DelayProcessor: public RackEffect
         float getFeedback() { return smoothedFeedback.getNextValue(); }
         void setFeedback(float fb) { smoothedFeedback.setTargetValue(fb); }
 
-        void updateRandomly() override
+        void updateRandomly(float bpm) override
         {
             if (feedbackRandomize)
                 setFeedback(0.3f + rand.nextFloat() * 0.5f); // 0.3 - 0.8
             if (delayTimeRandomize)
-                setDelayTime(rand.nextFloat() * maxDelaySamples);
+            {
+                if (bpm > 1.0f)
+                {
+                    // Choose a musical subdivision at random
+                    float noteLength = subdivisions[rand.nextInt(subdivisions.size())];
+                    float delayMs = (60.0f / bpm) * noteLength * 1000.0f;
+        
+                    setDelayTime(delayMs);
+                }
+                else
+                {
+                    setDelayTime(rand.nextFloat() * maxDelaySamples);
+                }
+            }
         }
 
         std::string getName() override { return "Delay"; };
@@ -92,7 +105,7 @@ class DelayProcessor: public RackEffect
 
         // Preallocating before the process loop
         int numChannels, numSamples; float in, delayed;
-
+        
         juce::Random rand;
         juce::LinearSmoothedValue<float> smoothedDelay = { maxDelaySamples };
         juce::LinearSmoothedValue<float> smoothedFeedback = { feedback };

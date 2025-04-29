@@ -95,15 +95,16 @@ RoutingNode& RoutingNode::get(const unsigned id) {
     throw std::runtime_error("RoutingNode with ID " + std::to_string(id) + " not found");
 }
 
-void RoutingNode::updateRandomly() {
+void RoutingNode::updateRandomly(float bpm) {
     if (effect) { 
-        effect->updateRandomly();
+        effect->updateRandomly(bpm);
         return;
     }
 
-    for (auto& child : children) { // randomize rest of the nodes recursively:
-        child->updateRandomly();
+    for (auto& child : children) {
+        child->updateRandomly(bpm);
 
+        // Notify the sliders of the effect parameters change
         if (child->effect && onEffectParamsChanged) {
             juce::MessageManager::callAsync([callback = onEffectParamsChanged,
                                             ptr = child->effect.get(),

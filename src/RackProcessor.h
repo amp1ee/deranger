@@ -47,7 +47,7 @@ class RackProcessor
                 blocksPerUpdate = 128;
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
             if (toRandomize && (blockCounter % blocksPerUpdate) == 0) {
-                root.updateRandomly();
+                root.updateRandomly(currentBPM);
             }
         }
 

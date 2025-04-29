@@ -89,10 +89,23 @@ public:
         mixer.reset();
     }
 
-    void updateRandomly() override
+    void updateRandomly(float bpm) override
     {
         if (delayRandomize)
-            setDelay(juce::Random::getSystemRandom().nextFloat() * maxCentreDelayMs);
+        {                
+            if (bpm > 1.0f)
+            {
+                // Choose a musical subdivision at random
+                float noteLength = subdivisions[rand.nextInt(subdivisions.size())];
+                float delayMs = (60.0f / bpm) * noteLength * 1000.0f;
+    
+                setDelay(delayMs);
+            }
+            else
+            {
+                setDelay(rand.nextFloat() * maxCentreDelayMs);
+            }
+        }
         if (depthRandomize)
             setLFODepth(juce::Random::getSystemRandom().nextFloat() * maxDepth);
         if (feedbackRandomize)
@@ -131,7 +144,8 @@ private:
     juce::dsp::AudioBlock<float> *outputBlock;
 
     std::vector<float> feedback{0.5f};
-    
+    juce::Random rand;
+
     juce::dsp::DryWetMixer<float> mixer;
     juce::LinearSmoothedValue<float> smoothedDelay = { maxCentreDelayMs };
     juce::LinearSmoothedValue<float> smoothedLFODepth = { lfoDepth };
