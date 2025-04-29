@@ -95,11 +95,35 @@ public:
         {                
             if (bpm > 1.0f)
             {
-                // Choose a musical subdivision at random
-                float noteLength = subdivisions[rand.nextInt(subdivisions.size())];
-                float delayMs = (60.0f / bpm) * noteLength * 1000.0f;
-    
-                setDelay(delayMs);
+                static const Array<float> fineSubdivisions = {
+                    1.0f / 128.0f,
+                    1.0f / 64.0f,
+                    1.0f / 48.0f,
+                    1.0f / 32.0f,
+                    1.0f / 24.0f,
+                    1.0f / 16.0f,
+                    1.0f / 12.0f,
+                    1.0f / 8.0f
+                };
+        
+                Array<float> validSubdivisions;
+                for (float subdivision : fineSubdivisions)
+                {
+                    float delayMs = (60.0f / bpm) * subdivision * 1000.0f;
+                    if (delayMs <= maxCentreDelayMs)
+                        validSubdivisions.add(subdivision);
+                }
+        
+                if (!validSubdivisions.isEmpty())
+                {
+                    float chosenSubdivision = validSubdivisions[rand.nextInt(validSubdivisions.size())];
+                    float delayMs = (60.0f / bpm) * chosenSubdivision * 1000.0f;
+                    setDelay(delayMs);
+                }
+                else
+                {
+                    setDelay(rand.nextFloat() * maxCentreDelayMs);
+                }
             }
             else
             {

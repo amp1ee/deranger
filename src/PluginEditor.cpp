@@ -20,7 +20,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   addAndConfigureSlider(reverbDampingSlider, reverbDampingLabel, reverbDampingToggle, "RV Damping", 0.0f, 1.0f, rev->getParameters().damping);
   
   auto *del = findDelayProcessor();
-  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, delayTimeToggle, "DL Time", 3000.0f, 3 * audioProcessor.getSampleRate(), del->getDelayTime());
+  addAndConfigureSlider(delayTimeSlider, delayTimeLabel, delayTimeToggle, "DL Time", 0.05, 3, del->getDelayTime()/audioProcessor.getSampleRate());
   addAndConfigureSlider(delayFeedbackSlider, delayFeedbackLabel, delayFeedbackToggle, "DL Feedback", 0.0f, 1.0f, del->getFeedback());
 
   auto *flg = findFlangerProcessor();
@@ -66,13 +66,12 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
       audioProcessor.getRack().setStretchSemitones(semitone);
   };
 
-
   if (!juce::JUCEApplicationBase::isStandaloneApp())
   {
     bpmLabel.setText("BPM: " + juce::String(p.getCurrentBPM(), 2), juce::dontSendNotification);
-    bpmLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    bpmLabel.setJustificationType(juce::Justification::centredRight);
-    bpmLabel.attachToComponent(&stretchButton, false);
+    bpmLabel.setColour(juce::Label::textColourId, juce::Colours::antiquewhite);
+    bpmLabel.setJustificationType(juce::Justification::centredLeft);
+    bpmLabel.attachToComponent(&randomizeButton, false);
     addAndMakeVisible(bpmLabel);
     startTimerHz(10);
   }
@@ -138,7 +137,8 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     delayTimeSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
       {
-          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()));
+          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()
+                                      * audioProcessor.getSampleRate()));
       }
     };
     delayFeedbackSlider.onValueChange = [this]() {
@@ -382,7 +382,7 @@ void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std:
   } else if (effectName == "Delay") {
     auto *del = dynamic_cast<DelayProcessor *>(&effect);
 
-    delayTimeSlider.setValue(del->getDelayTime(), nomsg);
+    delayTimeSlider.setValue(del->getDelayTime() / audioProcessor.getSampleRate(), nomsg);
     delayFeedbackSlider.setValue(del->getFeedback(), nomsg);
 
   } else if (effectName == "Flanger") {

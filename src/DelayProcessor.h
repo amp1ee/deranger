@@ -69,11 +69,17 @@ class DelayProcessor: public RackEffect
             {
                 if (bpm > 1.0f)
                 {
+                    
+                    const std::array<float, 9> subdivisions = {
+                        1.0f, 0.5f, 0.75f, 1.0/3.0f,
+                        2.0f, 0.25f, 2.0/3.0f, 1.5f, 3.0f 
+                    };
+
                     // Choose a musical subdivision at random
                     float noteLength = subdivisions[rand.nextInt(subdivisions.size())];
-                    float delayMs = (60.0f / bpm) * noteLength * 1000.0f;
+                    float delaySec = (60.0f / bpm) * noteLength;
         
-                    setDelayTime(delayMs);
+                    setDelayTime(delaySec * static_cast<float>(_sampleRate));
                 }
                 else
                 {

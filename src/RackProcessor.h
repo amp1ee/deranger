@@ -24,7 +24,7 @@ class RackProcessor
             root.prepare(spec);
             stretch.presetDefault(static_cast<int>(spec.numChannels),
                                  static_cast<float>(spec.sampleRate));
-            stretch.setTransposeSemitones(stretchSetmitones);
+            stretch.setTransposeSemitones(stretchSemitones);
         }
 
         void process(juce::dsp::AudioBlock<float> &block)
@@ -118,8 +118,11 @@ class RackProcessor
         void setRandomize(bool randomize)               { this->toRandomize = randomize; }
         [[nodiscard]] bool getStretchEnabled()    const { return this->stretchEnabled; }
         void setStretchEnabled(bool stretch)            { this->stretchEnabled = stretch; }
-        [[nodiscard]] float getStretchSemitones() const { return this->stretchSetmitones; }
-        void setStretchSemitones(float semitones)       { this->stretch.setTransposeSemitones(semitones); }
+        [[nodiscard]] float getStretchSemitones() const { return this->stretchSemitones; }
+        void setStretchSemitones(float semitones) {
+            this->stretchSemitones = semitones;
+            this->stretch.setTransposeSemitones(semitones);
+        }
 
         void setBPM(double bpm) { this->currentBPM = bpm; }
 
@@ -167,7 +170,7 @@ class RackProcessor
 
         bool toRandomize = true;
         bool stretchEnabled = true;
-        float stretchSetmitones = -5.0f;
+        float stretchSemitones = -5.0f;
         int blockCounter = 0;
         int blocksPerUpdate = 128;
         int blockSamples = 0;
