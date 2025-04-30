@@ -87,7 +87,9 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
   };
 
   stretchButton.onClick = [this]() {
-    audioProcessor.getRack().setStretchEnabled(stretchButton.getToggleState());
+    bool state = stretchButton.getToggleState();
+    audioProcessor.getRack().setStretchEnabled(state);
+    stretchSemitoneKnob.setEnabled(state);
   };
 
   // === Reverb Sliders ===

@@ -162,7 +162,12 @@ jobs:
           name: EffectRack ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
-          files: release-assets/**/*
+          files: |
+            release-assets/windows/EffectRack.vst3
+            release-assets/windows/EffectRack.exe
+            release-assets/linux/EffectRack.vst3
+            release-assets/linux/EffectRack.so
+            release-assets/windows/moduleinfo.json
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
