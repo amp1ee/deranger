@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 PROJECT(EffectRack
 LANGUAGES CXX C
-VERSION 0.0.2
+VERSION 0.8.3
 )
 
 # for clang-tidy(this enable to find system header files).
