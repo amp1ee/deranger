@@ -1,4 +1,4 @@
-name: CMake on Windows platform
+name: CMake on Windows/Linux platforms
 
 on:
   push:
@@ -78,3 +78,54 @@ jobs:
         name: EffectRackStandalone
         path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/Standalone/EffectRack.exe
 
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Install Linux build dependencies
+      run: sudo apt update && sudo apt install -y build-essential cmake libfreetype6-dev libx11-dev libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+
+    - name: Cache build directory
+      uses: actions/cache@v4
+      with:
+        path: ./build
+        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+
+    - name: Cache git folder for JUCE submodule
+      uses: actions/cache@v4
+      with:
+        path: lib/JUCE/.git
+        key: juce-${{ runner.os }}-${{ hashFiles('.gitmodules') }}
+        restore-keys: |
+          juce-${{ runner.os }}-
+
+    - name: Cache JUCE submodule
+      uses: actions/cache@v4
+      with:
+        path: lib/JUCE
+        key: juce-${{ runner.os }}-${{ hashFiles('lib/JUCE/**') }}
+        restore-keys: |
+          juce-${{ runner.os }}-
+
+    - name: Configure CMake
+      run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+    - name: Build
+      run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
+
+    - name: Test
+      working-directory: ${{ github.workspace }}/build
+      run: ctest -C ${{ env.BUILD_TYPE }}
+
+    - name: Upload VST3-so Plugin
+      uses: actions/upload-artifact@v4
+      with:
+        name: EffectRackVST3-so
+        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/VST3/EffectRack.vst3
