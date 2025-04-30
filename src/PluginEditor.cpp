@@ -35,6 +35,7 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
     }
   };
 
+
   // === Routing and Random Controls ===
   isParallelButton.setButtonText("||");
   isParallelButton.setToggleState(p.getRack().getRoot().getParallel(), juce::dontSendNotification);
