@@ -165,9 +165,9 @@ jobs:
           files: |
             release-assets/windows/EffectRack.vst3
             release-assets/windows/EffectRack.exe
+            release-assets/windows/moduleinfo.json
             release-assets/linux/EffectRack.vst3
             release-assets/linux/EffectRack.so
-            release-assets/windows/moduleinfo.json
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
