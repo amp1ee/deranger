@@ -1,6 +1,8 @@
 # Effect Rack
 Combines Reverb -> Delay -> Flanger in series or in parallel, can randomize parameters and stretch audio
 
+[![Plugin Usage Example on SoundCloud](https://img.shields.io/badge/SoundCloud-Plugin%20usage%20Example-orange?logo=soundcloud)](https://soundcloud.com/amp1ee/digital-ocean/s-8yxNCXALSuc?si=63ab54482c614f73a3910c795edd7071)
+
 This project has been bootstrapped from:
 [**JUCE CMake VSCode Example**](https://github.com/tomoyanonymous/juce_cmake_vscode_example)
 
