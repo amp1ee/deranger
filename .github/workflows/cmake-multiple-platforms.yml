@@ -159,12 +159,12 @@ jobs:
       - name: Zip Windows VST3
         run: |
           cd release-assets/windows
-          zip -r Deranger.vst3.zip Deranger.vst3
+          zip -r Deranger.vst3.zip . -x "Deranger.exe"
 
       - name: Zip Linux VST3
         run: |
           cd release-assets/linux
-          zip -r Deranger.vst3.zip Deranger.vst3
+          zip -r Deranger.vst3.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
