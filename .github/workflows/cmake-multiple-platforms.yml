@@ -71,14 +71,14 @@ jobs:
     - name: Upload VST3 Plugin
       uses: actions/upload-artifact@v4
       with:
-        name: EffectRackVST3
-        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/VST3/EffectRack.vst3
+        name: DerangerVST3
+        path: ${{ github.workspace }}/build/src/Deranger_artefacts/Debug/VST3/Deranger.vst3
 
     - name: Upload Standalone Plugin
       uses: actions/upload-artifact@v4
       with:
-        name: EffectRackStandalone
-        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/Standalone/EffectRack.exe
+        name: DerangerStandalone
+        path: ${{ github.workspace }}/build/src/Deranger_artefacts/Debug/Standalone/Deranger.exe
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -129,8 +129,8 @@ jobs:
     - name: Upload VST3-so Plugin
       uses: actions/upload-artifact@v4
       with:
-        name: EffectRackVST3-so
-        path: ${{ github.workspace }}/build/src/EffectRack_artefacts/Debug/VST3/EffectRack.vst3
+        name: DerangerVST3-so
+        path: ${{ github.workspace }}/build/src/Deranger_artefacts/Debug/VST3/Deranger.vst3
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -141,33 +141,33 @@ jobs:
       - name: Download Windows VST3
         uses: actions/download-artifact@v4
         with:
-          name: EffectRackVST3
+          name: DerangerVST3
           path: release-assets/windows
 
       - name: Download Windows Standalone
         uses: actions/download-artifact@v4
         with:
-          name: EffectRackStandalone
+          name: DerangerStandalone
           path: release-assets/windows
 
       - name: Download Linux VST3
         uses: actions/download-artifact@v4
         with:
-          name: EffectRackVST3-so
+          name: DerangerVST3-so
           path: release-assets/linux
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: EffectRack ${{ github.ref_name }}
+          name: Deranger ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
           files: |
-            release-assets/windows/EffectRack.vst3
-            release-assets/windows/EffectRack.exe
+            release-assets/windows/Deranger.vst3
+            release-assets/windows/Deranger.exe
             release-assets/windows/moduleinfo.json
-            release-assets/linux/EffectRack.vst3
-            release-assets/linux/EffectRack.so
+            release-assets/linux/Deranger.vst3
+            release-assets/linux/Deranger.so
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

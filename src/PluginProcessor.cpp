@@ -2,7 +2,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-EffectRackAudioProcessor::EffectRackAudioProcessor()
+DerangerAudioProcessor::DerangerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(
           BusesProperties()
@@ -25,14 +25,14 @@ EffectRackAudioProcessor::EffectRackAudioProcessor()
 
 }
 
-EffectRackAudioProcessor::~EffectRackAudioProcessor() {}
+DerangerAudioProcessor::~DerangerAudioProcessor() {}
 
 //==============================================================================
-const juce::String EffectRackAudioProcessor::getName() const {
+const juce::String DerangerAudioProcessor::getName() const {
   return JucePlugin_Name;
 }
 
-bool EffectRackAudioProcessor::acceptsMidi() const {
+bool DerangerAudioProcessor::acceptsMidi() const {
 #if JucePlugin_WantsMidiInput
   return true;
 #else
@@ -40,7 +40,7 @@ bool EffectRackAudioProcessor::acceptsMidi() const {
 #endif
 }
 
-bool EffectRackAudioProcessor::producesMidi() const {
+bool DerangerAudioProcessor::producesMidi() const {
 #if JucePlugin_ProducesMidiOutput
   return true;
 #else
@@ -48,7 +48,7 @@ bool EffectRackAudioProcessor::producesMidi() const {
 #endif
 }
 
-bool EffectRackAudioProcessor::isMidiEffect() const {
+bool DerangerAudioProcessor::isMidiEffect() const {
 #if JucePlugin_IsMidiEffect
   return true;
 #else
@@ -56,27 +56,27 @@ bool EffectRackAudioProcessor::isMidiEffect() const {
 #endif
 }
 
-double EffectRackAudioProcessor::getTailLengthSeconds() const { return 0.0; }
+double DerangerAudioProcessor::getTailLengthSeconds() const { return 0.0; }
 
-int EffectRackAudioProcessor::getNumPrograms() {
+int DerangerAudioProcessor::getNumPrograms() {
   return 1;  // NB: some hosts don't cope very well if you tell them there are 0
              // programs, so this should be at least 1, even if you're not
              // really implementing programs.
 }
 
-int EffectRackAudioProcessor::getCurrentProgram() { return 0; }
+int DerangerAudioProcessor::getCurrentProgram() { return 0; }
 
-void EffectRackAudioProcessor::setCurrentProgram(int index) {}
+void DerangerAudioProcessor::setCurrentProgram(int index) {}
 
-const juce::String EffectRackAudioProcessor::getProgramName(int  /*index*/) {
-  return { "EffectRack by Amplee" };
+const juce::String DerangerAudioProcessor::getProgramName(int  /*index*/) {
+  return { "Deranger by Amplee" };
 }
 
-void EffectRackAudioProcessor::changeProgramName(int index,
+void DerangerAudioProcessor::changeProgramName(int index,
                                                  const juce::String &newName) {}
 
 //==============================================================================
-void EffectRackAudioProcessor::prepareToPlay(double sampleRate,
+void DerangerAudioProcessor::prepareToPlay(double sampleRate,
                                              int samplesPerBlock) {
   
   _sampleRate = sampleRate;
@@ -92,14 +92,14 @@ void EffectRackAudioProcessor::prepareToPlay(double sampleRate,
 
 }
 
-void EffectRackAudioProcessor::releaseResources() {
+void DerangerAudioProcessor::releaseResources() {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
   rack.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool EffectRackAudioProcessor::isBusesLayoutSupported(
+bool DerangerAudioProcessor::isBusesLayoutSupported(
     const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
   juce::ignoreUnused(layouts);
@@ -124,7 +124,7 @@ bool EffectRackAudioProcessor::isBusesLayoutSupported(
 }
 #endif
 
-void EffectRackAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
+void DerangerAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                             juce::MidiBuffer & /*midiMessages*/) {
   juce::ScopedNoDenormals noDenormals;
   auto totalNumInputChannels = getTotalNumInputChannels();
@@ -163,33 +163,33 @@ void EffectRackAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 }
 
 //==============================================================================
-bool EffectRackAudioProcessor::hasEditor() const {
+bool DerangerAudioProcessor::hasEditor() const {
   return true;  // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor *EffectRackAudioProcessor::createEditor() {
-  return new EffectRackAudioProcessorEditor(*this);
+juce::AudioProcessorEditor *DerangerAudioProcessor::createEditor() {
+  return new DerangerAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void EffectRackAudioProcessor::getStateInformation(
+void DerangerAudioProcessor::getStateInformation(
     juce::MemoryBlock &destData) {
   // You should use this method to store your parameters in the memory block.
   // You could do that either as raw data, or use the XML or ValueTree classes
   // as intermediaries to make it easy to save and load complex data.
 }
 
-void EffectRackAudioProcessor::setStateInformation(const void *data,
+void DerangerAudioProcessor::setStateInformation(const void *data,
                                                    int sizeInBytes) {
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
   // call.
 }
 
-RackProcessor& EffectRackAudioProcessor::getRack() { return this->rack; }
+RackProcessor& DerangerAudioProcessor::getRack() { return this->rack; }
 
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() {
-  return new EffectRackAudioProcessor();
+  return new DerangerAudioProcessor();
 }

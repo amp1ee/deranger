@@ -2,8 +2,8 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
-    EffectRackAudioProcessor &p)
+DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
+    DerangerAudioProcessor &p)
     : AudioProcessorEditor(&p), audioProcessor(p) {
 
 
@@ -195,14 +195,14 @@ EffectRackAudioProcessorEditor::EffectRackAudioProcessorEditor(
 
 }
 
-void EffectRackAudioProcessorEditor::timerCallback()
+void DerangerAudioProcessorEditor::timerCallback()
 {
     float bpm = audioProcessor.getCurrentBPM();  // Atomic safe read
 
     bpmLabel.setText("BPM: " + juce::String(bpm, 2), juce::dontSendNotification);
 }
 
-EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
+DerangerAudioProcessorEditor::~DerangerAudioProcessorEditor() {
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
     svgimg = nullptr;
     reverbRoomSizeToggle.setLookAndFeel(nullptr);
@@ -219,7 +219,7 @@ EffectRackAudioProcessorEditor::~EffectRackAudioProcessorEditor() {
 }
 
 //==============================================================================
-void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
+void DerangerAudioProcessorEditor::paint(juce::Graphics &g) {
   // (Our component is opaque, so we must completely fill the background with a
   // solid colour)
   g.fillAll(
@@ -232,7 +232,7 @@ void EffectRackAudioProcessorEditor::paint(juce::Graphics &g) {
 
 // =====----=================== resized() ======================================== //
 //                                                                                 //
-void EffectRackAudioProcessorEditor::resized() {
+void DerangerAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds().reduced(20);
   int rowHeight = 40;
   int toggleWidth = rowHeight / 2 + 2;
@@ -315,7 +315,7 @@ void EffectRackAudioProcessorEditor::resized() {
   }
 }
 
-void EffectRackAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
+void DerangerAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
 {
     juce::File projectDir = juce::File::getCurrentWorkingDirectory();
     juce::File shotPng = projectDir.getChildFile("snapshot.png");
@@ -338,7 +338,7 @@ void EffectRackAudioProcessorEditor::takeSnapshotOfGUI (juce::Component* comp)
     }
 }
 
-void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
+void DerangerAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
   const juce::String& name,
   float min, float max, float initial)
   {
@@ -370,7 +370,7 @@ void EffectRackAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider,
 
 }
 
-void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
+void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
 {
   auto nomsg = juce::dontSendNotification;
 
@@ -397,7 +397,7 @@ void EffectRackAudioProcessorEditor::updateSliderValues(RackEffect& effect, std:
   }
 }
 
-ReverbProcessor* EffectRackAudioProcessorEditor::findReverbProcessor()
+ReverbProcessor* DerangerAudioProcessorEditor::findReverbProcessor()
 {
     for (auto& child : audioProcessor.getRack().getRoot().children)
     {
@@ -407,7 +407,7 @@ ReverbProcessor* EffectRackAudioProcessorEditor::findReverbProcessor()
     return nullptr;
 }
 
-DelayProcessor* EffectRackAudioProcessorEditor::findDelayProcessor()
+DelayProcessor* DerangerAudioProcessorEditor::findDelayProcessor()
 {
     for (auto& child : audioProcessor.getRack().getRoot().children)
     {
@@ -417,7 +417,7 @@ DelayProcessor* EffectRackAudioProcessorEditor::findDelayProcessor()
     return nullptr;
 }
 
-FlangerProcessor* EffectRackAudioProcessorEditor::findFlangerProcessor()
+FlangerProcessor* DerangerAudioProcessorEditor::findFlangerProcessor()
 {
     for (auto& child : audioProcessor.getRack().getRoot().children)
     {

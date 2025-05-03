@@ -7,12 +7,12 @@
 //==============================================================================
 /**
  */
-class EffectRackAudioProcessor : public juce::AudioProcessor {
+class DerangerAudioProcessor : public juce::AudioProcessor {
 
  public:
   //==============================================================================
-  EffectRackAudioProcessor();
-  ~EffectRackAudioProcessor() override;
+  DerangerAudioProcessor();
+  ~DerangerAudioProcessor() override;
 
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -58,5 +58,5 @@ class EffectRackAudioProcessor : public juce::AudioProcessor {
   float  nowBpm = 0.0f;
   double _sampleRate = 44100.0;
   //==============================================================================
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DerangerAudioProcessor)
 };

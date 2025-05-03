@@ -1,4 +1,4 @@
-juce_add_plugin(EffectRack
+juce_add_plugin(Deranger
 
     COMPANY_NAME "Amplee"                    # Specify the name of the plugin's author
     COMPANY_COPYRIGHT "Amplee"
@@ -19,18 +19,18 @@ juce_add_plugin(EffectRack
     VST3_CATEGORIES "Fx"
     AU_MAIN_TYPE "kAudioUnitType_Effect"
 
-    PRODUCT_NAME "EffectRack"
+    PRODUCT_NAME "Deranger"
 )
 
-target_compile_features(EffectRack PUBLIC cxx_std_17)
+target_compile_features(Deranger PUBLIC cxx_std_17)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(EffectRack PRIVATE -finput-charset=UTF-8)
+    target_compile_options(Deranger PRIVATE -finput-charset=UTF-8)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(EffectRack PRIVATE /utf-8)
+    target_compile_options(Deranger PRIVATE /utf-8)
 endif()
 
-target_compile_definitions(EffectRack
+target_compile_definitions(Deranger
     PUBLIC
     # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
     JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
@@ -44,7 +44,7 @@ juce_add_binary_data(BinaryAssets SOURCES
     ${CMAKE_SOURCE_DIR}/assets/amplee.svg
 )
 
-target_sources(EffectRack PRIVATE
+target_sources(Deranger PRIVATE
     PluginProcessor.cpp
     PluginProcessor.h
     PluginEditor.cpp
@@ -64,7 +64,7 @@ target_sources(EffectRack PRIVATE
     signalsmith-stretch.h
 )
 
-target_link_libraries(EffectRack PRIVATE
+target_link_libraries(Deranger PRIVATE
     BinaryAssets
 
     juce::juce_audio_basics
@@ -82,4 +82,4 @@ target_link_libraries(EffectRack PRIVATE
     juce::juce_gui_extra
 )
 
-juce_generate_juce_header(EffectRack)
+juce_generate_juce_header(Deranger)

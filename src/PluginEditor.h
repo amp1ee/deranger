@@ -8,11 +8,11 @@
 //==============================================================================
 /**
  */
-class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor,
+class DerangerAudioProcessorEditor : public juce::AudioProcessorEditor,
                                        private juce::Timer {
  public:
- EffectRackAudioProcessorEditor(EffectRackAudioProcessor &);
-  ~EffectRackAudioProcessorEditor() override;
+ DerangerAudioProcessorEditor(DerangerAudioProcessor &);
+  ~DerangerAudioProcessorEditor() override;
 
   //==============================================================================
   void paint(juce::Graphics &) override;
@@ -27,7 +27,7 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor,
  private:
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
-  EffectRackAudioProcessor &audioProcessor;
+  DerangerAudioProcessor &audioProcessor;
   std::unique_ptr<juce::Drawable> svgimg;
 
   juce::ToggleButton  isParallelButton;
@@ -63,5 +63,5 @@ class EffectRackAudioProcessorEditor : public juce::AudioProcessorEditor,
   juce::GroupComponent sliderContainer {"Sliders" };
   static constexpr int numSliders = 8;
 
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectRackAudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DerangerAudioProcessorEditor)
 };
