@@ -128,6 +128,30 @@ class RackProcessor
 
         RoutingNode& getRoot() { return this->root; }
 
+        std::unique_ptr<juce::XmlElement> saveToXml()
+        {
+            auto xml = std::make_unique<juce::XmlElement>("RackState");
+            // add each effect, routing, etc., as child elements
+            // e.g., xml->createNewChildElement("Effect")->setAttribute("type", "Delay");
+
+            return xml;
+        }
+
+        void loadFromXml(const juce::XmlElement& xml)
+        {
+            // clear existing config
+            //clear();
+
+            for (auto* child : xml.getChildIterator())
+            {
+                if (child->hasTagName("Effect"))
+                {
+
+                    // etc.
+                }
+            }
+        }
+
     protected:
 
         void stretchBlock(juce::dsp::AudioBlock<float> &block) {

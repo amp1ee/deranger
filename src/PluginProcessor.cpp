@@ -27,6 +27,33 @@ DerangerAudioProcessor::DerangerAudioProcessor()
 
 DerangerAudioProcessor::~DerangerAudioProcessor() {}
 
+//======= States and Parameters ================================================
+
+void DerangerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+{
+    juce::XmlElement xml("DerangerState");
+
+    xml.setAttribute("version", 1);
+
+    if (auto* rackXml = rack.saveToXml().get())
+        xml.addChildElement(rackXml);
+
+    copyXmlToBinary(xml, destData);
+}
+
+void DerangerAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+{
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+
+    if (xml && xml->hasTagName("DerangerState"))
+    {
+        int version = xml->getIntAttribute("version", 1);
+
+        if (auto* rackXml = xml->getChildByName("RackState"))
+            rack.loadFromXml(*rackXml);
+    }
+}
+
 //==============================================================================
 const juce::String DerangerAudioProcessor::getName() const {
   return JucePlugin_Name;
@@ -169,21 +196,6 @@ bool DerangerAudioProcessor::hasEditor() const {
 
 juce::AudioProcessorEditor *DerangerAudioProcessor::createEditor() {
   return new DerangerAudioProcessorEditor(*this);
-}
-
-//==============================================================================
-void DerangerAudioProcessor::getStateInformation(
-    juce::MemoryBlock &destData) {
-  // You should use this method to store your parameters in the memory block.
-  // You could do that either as raw data, or use the XML or ValueTree classes
-  // as intermediaries to make it easy to save and load complex data.
-}
-
-void DerangerAudioProcessor::setStateInformation(const void *data,
-                                                   int sizeInBytes) {
-  // You should use this method to restore your parameters from this memory
-  // block, whose contents will have been created by the getStateInformation()
-  // call.
 }
 
 RackProcessor& DerangerAudioProcessor::getRack() { return this->rack; }
