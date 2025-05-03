@@ -72,7 +72,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DerangerVST3
-        path: ${{ github.workspace }}/build/src/Deranger_artefacts/${{ env.BUILD_TYPE }}/VST3/Deranger.vst3
+        path: ${{ github.workspace }}/build/src/Deranger_artefacts/${{ env.BUILD_TYPE }}/VST3/Deranger.vst3/
 
     - name: Upload Standalone Plugin
       uses: actions/upload-artifact@v4
@@ -130,7 +130,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DerangerVST3-so
-        path: ${{ github.workspace }}/build/src/Deranger_artefacts/${{ env.BUILD_TYPE }}/VST3/Deranger.vst3
+        path: ${{ github.workspace }}/build/src/Deranger_artefacts/${{ env.BUILD_TYPE }}/VST3/Deranger.vst3/
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -156,6 +156,16 @@ jobs:
           name: DerangerVST3-so
           path: release-assets/linux
 
+      - name: Zip Windows VST3
+        run: |
+          cd release-assets/windows
+          zip -r Deranger.vst3.zip Deranger.vst3
+
+      - name: Zip Linux VST3
+        run: |
+          cd release-assets/linux
+          zip -r Deranger.vst3.zip Deranger.vst3
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -163,11 +173,9 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
           files: |
-            release-assets/windows/Deranger.vst3
+            release-assets/windows/Deranger.vst3.zip
             release-assets/windows/Deranger.exe
-            release-assets/windows/moduleinfo.json
-            release-assets/linux/Deranger.vst3
-            release-assets/linux/Deranger.so
+            release-assets/linux/Deranger.vst3.zip
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
