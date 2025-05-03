@@ -19,8 +19,8 @@ This project has been bootstrapped from:
 ## Build Status
 
 <p align="center">
-  <a href="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml">
-    <img src="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-single-platform.yml/badge.svg?branch=signalsmith-stretch" alt="CMake on Windows platform" />
+  <a href="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-multiple-platforms.yml">
+    <img src="https://github.com/amp1ee/effect_rack/actions/workflows/cmake-multiple-platforms.yml/badge.svg?branch=signalsmith-stretch" alt="CMake on Windows platform" />
   </a>
 </p>
 
