@@ -159,12 +159,12 @@ jobs:
       - name: Zip Windows VST3
         run: |
           cd release-assets/windows
-          zip -r Deranger.vst3.zip . -x "Deranger.exe"
+          zip -r Deranger-Windows.vst3.zip . -x "Deranger.exe"
 
       - name: Zip Linux VST3
         run: |
           cd release-assets/linux
-          zip -r Deranger.vst3.zip .
+          zip -r Deranger-Linux.vst3.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -173,9 +173,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
           files: |
-            release-assets/windows/Deranger.vst3.zip
+            release-assets/windows/Deranger-Windows.vst3.zip
             release-assets/windows/Deranger.exe
-            release-assets/linux/Deranger.vst3.zip
-
+            release-assets/linux/Deranger-Linux.vst3.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
