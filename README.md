@@ -1,9 +1,18 @@
 # Deranger
-Combines Reverb -> Delay -> Flanger in series or in parallel, can randomize parameters and stretch audio
 
-[![Plugin Output Example on SoundCloud](https://img.shields.io/badge/SoundCloud-Plugin%20output%20example-orange?logo=soundcloud)](https://soundcloud.com/amp1ee/digital-ocean/s-8yxNCXALSuc?si=63ab54482c614f73a3910c795edd7071)
+Combines Reverb→Delay→Flanger in series or in parallel, randomizes their parameters, and has the ability to pitch-shift the audio thanks to [SignalSmith's Stretch library](https://github.com/Signalsmith-Audio/Stretch).
+
+Check out this demo showcasing the plugin’s sound design potential after resampling:
+<p align="center">
+  <a href="https://soundcloud.com/amp1ee/digital-ocean/s-8yxNCXALSuc?si=63ab54482c614f73a3910c795edd7071">
+    <img src="https://img.shields.io/badge/SoundCloud-Plugin%20output%20example-orange?logo=soundcloud" alt="Plugin Output Example on SoundCloud" />
+  </a>
+</p>
+
+
 
 This project has been bootstrapped from:
+
 [**JUCE CMake VSCode Example**](https://github.com/tomoyanonymous/juce_cmake_vscode_example)
 
 ---
