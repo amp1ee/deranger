@@ -9,11 +9,6 @@
 
 using juce::Reverb;
 
-#define ROOM_SIZE (0.6F)
-#define DAMPING   (0.5F)
-#define WET_LEVEL (0.9F)
-#define DRY_LEVEL (0.7F)
-
 class RackProcessor
 {
     public:
@@ -57,15 +52,15 @@ class RackProcessor
             stretch.reset();
         }
 
-        void addReverb()
+        void addReverb(juce::AudioProcessorValueTreeState& params)
         {
             auto reverb = std::make_unique<ReverbProcessor>();
 
             Reverb::Parameters p;
-            p.roomSize = ROOM_SIZE;
-            p.damping = DAMPING;
-            p.wetLevel = WET_LEVEL;
-            p.dryLevel = DRY_LEVEL;
+            p.roomSize = params.getRawParameterValue("roomSize")->load();
+            p.damping  = params.getRawParameterValue("damping")->load();
+            p.wetLevel = params.getRawParameterValue("wetLevel")->load();;
+            p.dryLevel = 1.0f;
             reverb->setParameters(p);
 
             auto node = std::make_unique<RoutingNode>();
@@ -73,25 +68,25 @@ class RackProcessor
             root.children.push_back(std::move(node));
         }
 
-        void addDelay()
+        void addDelay(juce::AudioProcessorValueTreeState& params)
         {
             auto delay = std::make_unique<DelayProcessor>();
 
-            delay->setDelayTime(4500);
-            delay->setFeedback(0.7);
+            delay->setDelayTime(params.getRawParameterValue("delayTime")->load());
+            delay->setFeedback(params.getRawParameterValue("delayFeedback")->load());
 
             auto node = std::make_unique<RoutingNode>();
             node->effect = std::move(delay);
             root.children.push_back(std::move(node));
         }
 
-        void addFlanger()
+        void addFlanger(juce::AudioProcessorValueTreeState& params)
         {
             auto flanger = std::make_unique<FlangerProcessor>();
 
             flanger->setAmountOfStereo(0.8f);
-            flanger->setDelay(10.0f);
-            flanger->setFeedback(0.66f);
+            flanger->setDelay(params.getRawParameterValue("flangerDelay")->load());
+            flanger->setFeedback(params.getRawParameterValue("flangerFeedback")->load());
             flanger->setLFODepth(0.6f);
 
             auto node = std::make_unique<RoutingNode>();
@@ -99,7 +94,7 @@ class RackProcessor
             root.children.push_back(std::move(node));
         }
 
-        void addEnd() // End of the nodes
+        void addEnd() // Marking the end of node tree
         {
             auto node = std::make_unique<RoutingNode>();
             node->effect = nullptr;
@@ -128,28 +123,14 @@ class RackProcessor
 
         RoutingNode& getRoot() { return this->root; }
 
-        std::unique_ptr<juce::XmlElement> saveToXml()
+        RackEffect* findProcessor(const juce::String& name)
         {
-            auto xml = std::make_unique<juce::XmlElement>("RackState");
-            // add each effect, routing, etc., as child elements
-            // e.g., xml->createNewChildElement("Effect")->setAttribute("type", "Delay");
-
-            return xml;
-        }
-
-        void loadFromXml(const juce::XmlElement& xml)
-        {
-            // clear existing config
-            //clear();
-
-            for (auto* child : xml.getChildIterator())
+            for (auto& child : root.children)
             {
-                if (child->hasTagName("Effect"))
-                {
-
-                    // etc.
-                }
+                if (child->effect && child->effect->getName() == name)
+                    return (child->effect.get());
             }
+            return nullptr;
         }
 
     protected:

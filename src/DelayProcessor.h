@@ -96,6 +96,14 @@ class DelayProcessor: public RackEffect
         void setFeedbackRandomize(bool shouldRandomize)  { feedbackRandomize = shouldRandomize; }
         void setDelayTimeRandomize(bool shouldRandomize) { delayTimeRandomize = shouldRandomize; }
 
+        [[nodiscard]] std::map<std::string, float> getParameterMap() override
+        {
+            return {
+                { "delayTime",     getDelayTime() },
+                { "delayFeedback", getFeedback() }
+            };
+        }
+
     private:
         double _sampleRate = 44100.0f;
         const float maxDelaySeconds = 3.0f;

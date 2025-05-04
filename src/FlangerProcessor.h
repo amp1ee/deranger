@@ -146,6 +146,15 @@ public:
     [[nodiscard]] bool getDepthRandomize() const { return depthRandomize; }
     [[nodiscard]] bool getFeedbackRandomize() const { return feedbackRandomize; }
 
+    [[nodiscard]] std::map<std::string, float> getParameterMap() override
+    {
+        return {
+            { "flangerDelay",    getDelay() },
+            { "flangerFeedback", getFeedback() },
+            { "flangerDepth",    getLFODepth() }
+        };
+    }
+
 private:
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> flangerDelay;
     juce::dsp::Oscillator<float> lfo;
@@ -153,13 +162,13 @@ private:
     float _sampleRate = 44100.0f;
     int numChannels = 0, numSamples;
 
-    float lfoDepth = 5.0f; // max mod depth ~5ms
+    float lfoDepth = 5.0f;
     float lfoFreq = 0.33f;
     float stereoWidth = 0.6f;
 
     float maxDepth = 1.0f;
-    float maxCentreDelayMs = 15.0f;            // Reduced from 300ms to 15ms
-    float maximumDelayModulationMs = 5.0f;     // Max mod depth ~5ms
+    float maxCentreDelayMs = 15.0f;
+    float maximumDelayModulationMs = 5.0f;
 
     // Preallocations ahead of the process loop:
     float wetSignal, inputWithFeedback, lfoValue, delayCalcMs,

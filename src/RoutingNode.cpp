@@ -106,14 +106,55 @@ void RoutingNode::updateRandomly(float bpm) {
 
         // Notify the sliders of the effect parameters change
         if (child->effect && onEffectParamsChanged) {
-            juce::MessageManager::callAsync([callback = onEffectParamsChanged,
-                                            ptr = child->effect.get(),
-                                            name = child->effect->getName()] {
-                callback(ptr, name);
-            });
+            // juce::MessageManager::callAsync([callback = onEffectParamsChanged,
+            //                                 ptr = child->effect.get(),
+            //                                 name = child->effect->getName()] {
+            //     callback(ptr, name);
+            // });
+            printf("Calling onEffectParamsChanged for child effect: %s\n", child->effect->getName().c_str());
+            onEffectParamsChanged(child->effect.get(), child->effect->getName());
         }
     }
 }
+
+// void RoutingNode::updateRandomly(float bpm)
+// {
+//     if (effect)
+//     {
+//         printf("Updating random params for single effect: %s\n", effect->getName().c_str());
+//         effect->updateRandomly(bpm);
+//         return;
+//     }
+
+//     for (auto& child : children)
+//     {
+//         child->updateRandomly(bpm);
+
+//         // Copy the shared_ptr so it's safe across async call
+//         if (child->effect && onEffectParamsChanged)
+//         {
+//             auto effectPtr = child->effect;
+
+//             juce::MessageManager::callAsync([callback = onEffectParamsChanged,
+//                                              effectPtr,
+//                                              name = effectPtr->getName()] {
+//                 if (effectPtr)
+//                 {
+//                     printf("Effect param change callback triggered for: %s\n", name.c_str());
+//                     auto paramMap = effectPtr->getParameterMap();
+//                     for (const auto& [key, val] : paramMap)
+//                         printf("  Param: %s = %f\n", key.c_str(), val);
+
+//                     callback(effectPtr.get(), name);
+//                 }
+//                 else
+//                 {
+//                     printf("Effect pointer is null in async callback!\n");
+//                 }
+//             });
+//         }
+//     }
+// }
 
 bool RoutingNode::getParallel() {
     return isParallel;

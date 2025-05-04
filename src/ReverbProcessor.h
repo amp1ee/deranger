@@ -62,6 +62,15 @@ class ReverbProcessor : public RackEffect
         [[nodiscard]] bool getDampingRandomize() const { return dampingRandomize; }
         [[nodiscard]] bool getWetLevelRandomize() const { return wetLevelRandomize; }
 
+        [[nodiscard]] std::map<std::string, float> getParameterMap() override
+        {
+            return {
+                {"roomSize", p.roomSize},
+                {"damping", p.damping},
+                {"wetLevel", p.wetLevel}
+            };
+        }
+
     private:
         juce::dsp::Reverb reverb;
         juce::Random rand;

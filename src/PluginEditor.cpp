@@ -32,16 +32,24 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   {
     if (effect) {
       updateSliderValues(*effect, name);
+      printf("Effect %s params changed\n", name.c_str());
+      auto params = effect->getParameterMap();
+      for (const auto& param : params) {
+        juce::String id = param.first.c_str();
+        juce::String value = juce::String(param.second);
+        //audioProcessor.getParameters().setValueNotifyingHost(id, value.getFloatValue());
+        printf("\tParam: %s = %s\n", id.toRawUTF8(), value.toRawUTF8());
+      }
+      this->audioProcessor.applyEffectParamChanges(effect->getParameterMap());
     }
   };
-
-
+  
   // === Routing and Random Controls ===
   isParallelButton.setButtonText("||");
   isParallelButton.setToggleState(p.getRack().getRoot().getParallel(), juce::dontSendNotification);
   addAndMakeVisible(isParallelButton);
 
-  randomizeButton.setButtonText("[?]");
+  randomizeButton.setButtonText("<?>");
   randomizeButton.setToggleState(p.getRack().getRandomize(), juce::dontSendNotification);
   addAndMakeVisible(randomizeButton);
 
@@ -65,6 +73,9 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   stretchSemitoneKnob.onValueChange = [this]() {
       int semitone = static_cast<int>(stretchSemitoneKnob.getValue());
       audioProcessor.getRack().setStretchSemitones(semitone);
+      audioProcessor.applyEffectParamChanges({
+        {"stretchSemitones", static_cast<float>(semitone)}
+      });
   };
 
   if (!juce::JUCEApplicationBase::isStandaloneApp())
@@ -80,43 +91,61 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   isParallelButton.onStateChange = [this]() {
     bool state = isParallelButton.getToggleState();
     audioProcessor.getRack().getRoot().setParallel(state);
+    audioProcessor.applyEffectParamChanges({
+      {"isParallel", static_cast<bool>(state)}
+    });
   };
 
   randomizeButton.onClick = [this]() {
     audioProcessor.getRack().setRandomize(randomizeButton.getToggleState());
+    audioProcessor.applyEffectParamChanges({
+      {"randomize", static_cast<bool>(randomizeButton.getToggleState())}
+    });
   };
 
   stretchButton.onClick = [this]() {
     bool state = stretchButton.getToggleState();
     audioProcessor.getRack().setStretchEnabled(state);
     stretchSemitoneKnob.setEnabled(state);
+    audioProcessor.applyEffectParamChanges({
+      {"stretchEnabled", static_cast<bool>(state)}
+    });
   };
 
   // === Reverb Sliders ===
     reverbRoomSizeSlider.onValueChange = [this]() {
       if (auto* reverb = findReverbProcessor())
       {
-          auto params = reverb->getParameters();
-          params.roomSize = static_cast<float>(reverbRoomSizeSlider.getValue());
-          reverb->setParameters(params);
+        auto params = reverb->getParameters();
+        params.roomSize = static_cast<float>(reverbRoomSizeSlider.getValue());
+        reverb->setParameters(params);
+        audioProcessor.applyEffectParamChanges({
+            {"roomSize", params.roomSize}
+        });
       }
     };
 
     reverbWetSlider.onValueChange = [this]() {
       if (auto* reverb = findReverbProcessor())
       {
-          auto params = reverb->getParameters();
-          params.wetLevel = static_cast<float>(reverbWetSlider.getValue());
-          reverb->setParameters(params);
+        auto params = reverb->getParameters();
+        params.wetLevel = static_cast<float>(reverbWetSlider.getValue());
+        reverb->setParameters(params);
+        audioProcessor.applyEffectParamChanges({
+            {"wetLevel", params.wetLevel}
+        });
       }
     };
 
     reverbDampingSlider.onValueChange = [this]() {
       if (auto* reverb = findReverbProcessor())
       {
-          auto params = reverb->getParameters();
-          params.damping = static_cast<float>(reverbDampingSlider.getValue());
-          reverb->setParameters(params);
+        auto params = reverb->getParameters();
+        params.damping = static_cast<float>(reverbDampingSlider.getValue());
+        reverb->setParameters(params);
+        audioProcessor.applyEffectParamChanges({
+            {"damping", params.damping}
+        });
       }
     };
 
@@ -140,14 +169,20 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
     delayTimeSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
       {
-          delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()
-                                      * audioProcessor.getSampleRate()));
+        delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()
+                                    * audioProcessor.getSampleRate()));
+        audioProcessor.applyEffectParamChanges({
+            {"delayTime", delay->getDelayTime()}
+        });
       }
     };
     delayFeedbackSlider.onValueChange = [this]() {
       if (auto* delay = findDelayProcessor())
       {
-          delay->setFeedback(static_cast<float>(delayFeedbackSlider.getValue()));
+        delay->setFeedback(static_cast<float>(delayFeedbackSlider.getValue()));
+        audioProcessor.applyEffectParamChanges({
+            {"delayFeedback", delay->getFeedback()}
+        });
       }
     };
 
@@ -163,18 +198,30 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
 
     // === Flanger Sliders ===
     flangerDelaySlider.onValueChange = [this]() {
-      if (auto* flanger = findFlangerProcessor())
-          flanger->setDelay(static_cast<float>(flangerDelaySlider.getValue()));
+      if (auto* flanger = findFlangerProcessor()) {
+        flanger->setDelay(static_cast<float>(flangerDelaySlider.getValue()));
+        audioProcessor.applyEffectParamChanges({
+            {"flangerDelay", flanger->getDelay()}
+        });
+      }
     };
 
     flangerDepthSlider.onValueChange = [this]() {
-      if (auto* flanger = findFlangerProcessor())
-          flanger->setLFODepth(static_cast<float>(flangerDepthSlider.getValue()));
+      if (auto* flanger = findFlangerProcessor()) {
+        flanger->setLFODepth(static_cast<float>(flangerDepthSlider.getValue()));
+        audioProcessor.applyEffectParamChanges({
+            {"flangerDepth", flanger->getLFODepth()}
+        });
+      }
     };
 
     flangerFeedbackSlider.onValueChange = [this]() {
-      if (auto* flanger = findFlangerProcessor())
-          flanger->setFeedback(static_cast<float>(flangerFeedbackSlider.getValue()));
+      if (auto* flanger = findFlangerProcessor()) {
+        flanger->setFeedback(static_cast<float>(flangerFeedbackSlider.getValue()));
+        audioProcessor.applyEffectParamChanges({
+            {"flangerFeedback", flanger->getFeedback()}
+        });
+      }
     };
 
     // === Flanger Toggles ===
@@ -193,6 +240,45 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
           flanger->setFeedbackRandomize(flangerFeedbackToggle.getToggleState());
     };
 
+    p.onStateChanged = [this]()
+    {
+        updateControlsFromParameters();
+        repaint();
+    };
+}
+
+void DerangerAudioProcessorEditor::updateControlsFromParameters()
+{
+    auto& params = audioProcessor.parameters;
+
+    // Use helper function to avoid invalid casts
+    auto getFloatParam = [&](const juce::String& id) -> float
+    {
+        if (auto* param = dynamic_cast<juce::AudioParameterFloat*>(params.getParameter(id)))
+            return param->get();
+        return 0.0f;
+    };
+
+    auto getBoolParam = [&](const juce::String& id) -> bool
+    {
+        if (auto* param = dynamic_cast<juce::AudioParameterBool*>(params.getParameter(id)))
+            return param->get();
+        return false;
+    };
+
+    auto nomsg = juce::dontSendNotification;
+    delayTimeSlider.setValue(getFloatParam("delayTime"), nomsg);
+    delayFeedbackSlider.setValue(getFloatParam("delayFeedback"), nomsg);
+    reverbRoomSizeSlider.setValue(getFloatParam("roomSize"), nomsg);
+    reverbWetSlider.setValue(getFloatParam("wetLevel"), nomsg);
+    reverbDampingSlider.setValue(getFloatParam("damping"), nomsg);
+    flangerDelaySlider.setValue(getFloatParam("flangerDelay"), nomsg);
+    flangerDepthSlider.setValue(getFloatParam("flangerDepth"), nomsg);
+
+    isParallelButton.setToggleState(getBoolParam("isParallel"), nomsg);
+    randomizeButton.setToggleState(getBoolParam("randomize"), nomsg);
+    stretchButton.setToggleState(getBoolParam("stretchEnabled"), nomsg);
+    stretchSemitoneKnob.setValue(getFloatParam("stretchSemitones"), nomsg);
 }
 
 void DerangerAudioProcessorEditor::timerCallback()
@@ -374,6 +460,7 @@ void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::s
 {
   auto nomsg = juce::dontSendNotification;
 
+  printf("Updating slider values for %s\n", effectName.c_str());
   if (effectName == "Reverb") {
     auto *rev = dynamic_cast<ReverbProcessor *>(&effect);
     juce::dsp::Reverb::Parameters par = rev->getParameters();
@@ -399,30 +486,15 @@ void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::s
 
 ReverbProcessor* DerangerAudioProcessorEditor::findReverbProcessor()
 {
-    for (auto& child : audioProcessor.getRack().getRoot().children)
-    {
-        if (child->effect && child->effect->getName() == "Reverb")
-            return dynamic_cast<ReverbProcessor*>(child->effect.get());
-    }
-    return nullptr;
+    return dynamic_cast<ReverbProcessor*>(audioProcessor.getRack().findProcessor("Reverb"));
 }
 
 DelayProcessor* DerangerAudioProcessorEditor::findDelayProcessor()
 {
-    for (auto& child : audioProcessor.getRack().getRoot().children)
-    {
-        if (child->effect && child->effect->getName() == "Delay")
-            return dynamic_cast<DelayProcessor*>(child->effect.get());
-    }
-    return nullptr;
+    return dynamic_cast<DelayProcessor*>(audioProcessor.getRack().findProcessor("Delay"));
 }
 
 FlangerProcessor* DerangerAudioProcessorEditor::findFlangerProcessor()
 {
-    for (auto& child : audioProcessor.getRack().getRoot().children)
-    {
-        if (child->effect && child->effect->getName() == "Flanger")
-            return dynamic_cast<FlangerProcessor*>(child->effect.get());
-    }
-    return nullptr;
+    return dynamic_cast<FlangerProcessor*>(audioProcessor.getRack().findProcessor("Flanger"));
 }

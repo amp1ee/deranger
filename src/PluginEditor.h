@@ -59,6 +59,7 @@ class DerangerAudioProcessorEditor : public juce::AudioProcessorEditor,
                              const juce::String& name, float min, float max, float initial);
 
   void updateSliderValues(RackEffect& effect, std::string effectName);
+  void updateControlsFromParameters();
 
   juce::GroupComponent sliderContainer {"Sliders" };
   static constexpr int numSliders = 8;

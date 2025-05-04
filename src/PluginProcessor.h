@@ -50,6 +50,24 @@ class DerangerAudioProcessor : public juce::AudioProcessor {
   RackProcessor& getRack();
   float getCurrentBPM() const { return currentBPM; }
 
+  juce::AudioProcessorValueTreeState parameters;
+  std::function<void()> onStateChanged;
+  void initializeParameters(juce::AudioProcessorValueTreeState& params);
+  void applyEffectParamChanges(const std::map<std::string, float>& paramMap);
+
+  std::atomic<float>*randomizeParam;
+  std::atomic<float>*stretchEnabledParam;
+  std::atomic<float>*stretchSemitonesParam;
+  std::atomic<float>*isParallelParam;
+  std::atomic<float>*delayTimeParam;
+  std::atomic<float>*delayFeedbackParam;
+  std::atomic<float>*roomSizeParam;
+  std::atomic<float>*wetLevelParam;
+  std::atomic<float>*dampingParam;
+  std::atomic<float>*flangerFeedbackParam;
+  std::atomic<float>*flangerDelayParam;
+  std::atomic<float>*flangerDepthParam;
+
  private:
   RackProcessor rack;
 

@@ -13,4 +13,6 @@ class RackEffect
         virtual void reset() {}
         virtual void updateRandomly(float bpm) {}
         virtual std::string getName() { return nullptr; }
+        [[nodiscard]] virtual bool getParallel() const { return false; }
+        [[nodiscard]] virtual std::map<std::string, float> getParameterMap() { return {}; }
 };

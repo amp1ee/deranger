@@ -38,7 +38,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ./build
-        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}-${{ github.repository }}
         restore-keys: |
           ${{ runner.os }}-build-
 
@@ -96,7 +96,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ./build
-        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}-${{ github.repository }}
         restore-keys: |
           ${{ runner.os }}-build-
 
