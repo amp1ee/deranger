@@ -72,7 +72,7 @@ class RackProcessor
         {
             auto delay = std::make_unique<DelayProcessor>();
 
-            delay->setDelayTime(params.getRawParameterValue("delayTime")->load());
+            delay->setDelayTime(params.getRawParameterValue("delayTime")->load() * _sampleRate);
             delay->setFeedback(params.getRawParameterValue("delayFeedback")->load());
 
             auto node = std::make_unique<RoutingNode>();

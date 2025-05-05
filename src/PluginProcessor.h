@@ -53,7 +53,7 @@ class DerangerAudioProcessor : public juce::AudioProcessor {
   juce::AudioProcessorValueTreeState parameters;
   std::function<void()> onStateChanged;
   void initializeParameters(juce::AudioProcessorValueTreeState& params);
-  void applyEffectParamChanges(const std::map<std::string, float>& paramMap);
+  void applyEffectParamChanges(const std::map<std::string, float>& paramMap) const;
 
   std::atomic<float>*randomizeParam;
   std::atomic<float>*stretchEnabledParam;

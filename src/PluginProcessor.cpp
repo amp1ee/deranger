@@ -6,7 +6,7 @@ DerangerAudioProcessor::DerangerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : parameters (*this, nullptr, juce::Identifier("PARAMETERS"),
     {
-      std::make_unique<juce::AudioParameterFloat>("delayTime", "Delay Time", 0.05f * 44100, 3.0f * 44100, 4500.0f),
+      std::make_unique<juce::AudioParameterFloat>("delayTime", "Delay Time", 0.05f, 3.0f, 1.0f),
       std::make_unique<juce::AudioParameterFloat>("delayFeedback", "Delay Feedback", 0.0f, 1.0f, 0.7f),
       std::make_unique<juce::AudioParameterFloat>("roomSize", "Room Size", 0.0f, 1.0f, 0.6f),
       std::make_unique<juce::AudioParameterFloat>("wetLevel", "Wet Level", 0.0f, 1.0f, 0.9f),
@@ -47,51 +47,56 @@ DerangerAudioProcessor::~DerangerAudioProcessor() {}
 
 void DerangerAudioProcessor::initializeParameters(juce::AudioProcessorValueTreeState& params)
 {
-  randomizeParam = params.getRawParameterValue("randomize");
-  stretchEnabledParam = params.getRawParameterValue("stretchEnabled");
-  stretchSemitonesParam = params.getRawParameterValue("stretchSemitones");
-  isParallelParam = params.getRawParameterValue("isParallel");
-  delayTimeParam = params.getRawParameterValue("delayTime");
-  delayFeedbackParam = params.getRawParameterValue("delayFeedback");
-  roomSizeParam = params.getRawParameterValue("roomSize");
-  wetLevelParam = params.getRawParameterValue("wetLevel");
-  dampingParam = params.getRawParameterValue("damping");
-  flangerFeedbackParam = params.getRawParameterValue("flangerFeedback");
-  flangerDelayParam = params.getRawParameterValue("flangerDelay");
-  flangerDepthParam = params.getRawParameterValue("flangerDepth");
+    randomizeParam = params.getRawParameterValue("randomize");
+    stretchEnabledParam = params.getRawParameterValue("stretchEnabled");
+    stretchSemitonesParam = params.getRawParameterValue("stretchSemitones");
+    isParallelParam = params.getRawParameterValue("isParallel");
+    delayTimeParam = params.getRawParameterValue("delayTime");
+    delayFeedbackParam = params.getRawParameterValue("delayFeedback");
+    roomSizeParam = params.getRawParameterValue("roomSize");
+    wetLevelParam = params.getRawParameterValue("wetLevel");
+    dampingParam = params.getRawParameterValue("damping");
+    flangerFeedbackParam = params.getRawParameterValue("flangerFeedback");
+    flangerDelayParam = params.getRawParameterValue("flangerDelay");
+    flangerDepthParam = params.getRawParameterValue("flangerDepth");
 }
 
-void DerangerAudioProcessor::applyEffectParamChanges(const std::map<std::string, float>& paramMap)
+void DerangerAudioProcessor::applyEffectParamChanges(const std::map<std::string, float>& paramMap) const
 {
     for (const auto& [id, value] : paramMap)
     {
         juce::Identifier paramId(id);
-        //printf("ParamID: %s \n", id.c_str());
-
         if (auto* param = dynamic_cast<juce::AudioParameterFloat*>(parameters.getParameter(id)))
         {
             param->setValueNotifyingHost(value);
-            //printf("  Param: %f ", value);
         } else if (auto* param = dynamic_cast<juce::AudioParameterBool*>(parameters.getParameter(id)))
         {
             param->setValueNotifyingHost(static_cast<bool>(value));
-            //printf("  Param: %d ", static_cast<int>(value));
         } else {
-            //printf("!! WARNING: Param '%s' not found or not float/bool!\n", id.c_str());
+            printf("!! WARNING: Param '%s' not found or not float/bool!\n", id.c_str());
         }
-        //printf("\n");
     }
 }
 
 void DerangerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-  auto state = parameters.copyState();
-  std::unique_ptr<juce::XmlElement> xml (state.createXml());
+  for (auto param : parameters.state) // TODO (amp1ee): remove this w/a:
+  {
+      auto param_name = param.getProperty("id").toString().toRawUTF8();
+      if (std::strcmp(param_name, "delayTime") == 0)
+        param.setProperty("value", dynamic_cast<DelayProcessor*>(rack.findProcessor("Delay"))->getTargetDelayTime()/_sampleRate, nullptr);
+      else if (std::strcmp(param_name, "flangerDelay") == 0)
+        param.setProperty("value", dynamic_cast<FlangerProcessor*>(rack.findProcessor("Flanger"))->getDelay(), nullptr);
+  }
+
+  // Saving the state to XML
+  std::unique_ptr<juce::XmlElement> xml (parameters.state.createXml());
   copyXmlToBinary (*xml, destData);
 }
 
 void DerangerAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
+  // Restore the state from XML
   std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
   if (xmlState != nullptr) {
     if (xmlState->hasTagName (parameters.state.getType())) {

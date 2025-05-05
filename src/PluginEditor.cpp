@@ -7,7 +7,7 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
     : AudioProcessorEditor(&p), audioProcessor(p) {
 
 
-  setSize(400, 600);
+  setSize(420, 690);
 
   svgimg = juce::Drawable::createFromImageData(BinaryData::amplee_svg,
                                                  BinaryData::amplee_svgSize);
@@ -32,16 +32,14 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   {
     if (effect) {
       updateSliderValues(*effect, name);
-      //printf("Effect %s params changed\n", name.c_str());
-      auto params = effect->getParameterMap();
-      for (const auto& param : params) {
-        juce::String id = param.first.c_str();
-        juce::String value = juce::String(param.second);
-        //audioProcessor.getParameters().setValueNotifyingHost(id, value.getFloatValue());
-        //printf("\tParam: %s = %s\n", id.toRawUTF8(), value.toRawUTF8());
-      }
       this->audioProcessor.applyEffectParamChanges(effect->getParameterMap());
     }
+  };
+  
+  p.onStateChanged = [this]()
+  {
+      updateControlsFromParameters();
+      repaint(); // TODO (amp1ee): Needed?
   };
   
   // === Routing and Random Controls ===
@@ -96,14 +94,14 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
     });
   };
 
-  randomizeButton.onClick = [this]() {
+  randomizeButton.onStateChange = [this]() {
     audioProcessor.getRack().setRandomize(randomizeButton.getToggleState());
     audioProcessor.applyEffectParamChanges({
       {"randomize", static_cast<bool>(randomizeButton.getToggleState())}
     });
   };
 
-  stretchButton.onClick = [this]() {
+  stretchButton.onStateChange = [this]() {
     bool state = stretchButton.getToggleState();
     audioProcessor.getRack().setStretchEnabled(state);
     stretchSemitoneKnob.setEnabled(state);
@@ -172,7 +170,7 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
         delay->setDelayTime(static_cast<float>(delayTimeSlider.getValue()
                                     * audioProcessor.getSampleRate()));
         audioProcessor.applyEffectParamChanges({
-            {"delayTime", delay->getDelayTime()}
+            {"delayTime", delayTimeSlider.getValue()}
         });
       }
     };
@@ -240,11 +238,6 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
           flanger->setFeedbackRandomize(flangerFeedbackToggle.getToggleState());
     };
 
-    p.onStateChanged = [this]()
-    {
-        updateControlsFromParameters();
-        repaint(); // TODO: Needed?
-    };
 }
 
 void DerangerAudioProcessorEditor::updateControlsFromParameters()
@@ -274,11 +267,13 @@ void DerangerAudioProcessorEditor::updateControlsFromParameters()
     reverbDampingSlider.setValue(getFloatParam("damping"), nomsg);
     flangerDelaySlider.setValue(getFloatParam("flangerDelay"), nomsg);
     flangerDepthSlider.setValue(getFloatParam("flangerDepth"), nomsg);
+    flangerFeedbackSlider.setValue(getFloatParam("flangerFeedback"), nomsg);
 
     isParallelButton.setToggleState(getBoolParam("isParallel"), nomsg);
     randomizeButton.setToggleState(getBoolParam("randomize"), nomsg);
     stretchButton.setToggleState(getBoolParam("stretchEnabled"), nomsg);
     stretchSemitoneKnob.setValue(getFloatParam("stretchSemitones"), nomsg);
+    stretchSemitoneKnob.setEnabled(getBoolParam("stretchEnabled"));
 }
 
 void DerangerAudioProcessorEditor::timerCallback()
@@ -460,7 +455,6 @@ void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::s
 {
   auto nomsg = juce::dontSendNotification;
 
-  //printf("Updating slider values for %s\n", effectName.c_str());
   if (effectName == "Reverb") {
     auto *rev = dynamic_cast<ReverbProcessor *>(&effect);
     juce::dsp::Reverb::Parameters par = rev->getParameters();

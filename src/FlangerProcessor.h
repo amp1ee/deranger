@@ -34,9 +34,9 @@ public:
     }
 
     [[nodiscard]] float getAmountOfStereo() const { return stereoWidth; }
-    [[nodiscard]] float getDelay()                { return smoothedDelay.getNextValue(); }
-    [[nodiscard]] float getLFODepth()             { return smoothedLFODepth.getNextValue(); }
-    [[nodiscard]] float getFeedback()             { return smoothedFeedback.getNextValue(); }
+    [[nodiscard]] float getDelay()                { return smoothedDelay.getTargetValue(); }
+    [[nodiscard]] float getLFODepth()             { return smoothedLFODepth.getTargetValue(); }
+    [[nodiscard]] float getFeedback()             { return smoothedFeedback.getTargetValue(); }
 
     void setAmountOfStereo(float newWidth) { stereoWidth = newWidth; }
     void setDelay(float newCentreDelayMs)  { smoothedDelay.setTargetValue(newCentreDelayMs); }
@@ -60,7 +60,7 @@ public:
                 input = inputBlock->getSample(channel, i);
 
                 lfoValue = lfo.processSample(phaseOffset);
-                delayCalcMs = juce::jlimit(1.0f, 20.0f, getDelay() + (lfoValue * getLFODepth()));
+                delayCalcMs = juce::jlimit(1.0f, 20.0f, smoothedDelay.getNextValue() + (lfoValue * smoothedLFODepth.getNextValue()));
                 delayCalcSamples = delayCalcMs * (_sampleRate / 1000.0f);
                 flangerDelay.setDelay(delayCalcSamples);
 
@@ -69,7 +69,7 @@ public:
                 wetSignal = flangerDelay.popSample(channel);
 
                 outputBlock->setSample(channel, i, wetSignal);
-                feedback[channel] = wetSignal * getFeedback();
+                feedback[channel] = wetSignal * smoothedFeedback.getNextValue();
             }
         }
 

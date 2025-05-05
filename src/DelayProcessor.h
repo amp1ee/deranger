@@ -24,10 +24,11 @@ class DelayProcessor: public RackEffect
         }
 
         [[nodiscard]] float getDelayTime() { return smoothedDelay.getNextValue(); }
+        [[nodiscard]] float getTargetDelayTime() { return smoothedDelay.getTargetValue(); }
 
-        void setDelayTime(float millis)
+        void setDelayTime(float samples)
         {
-            delayTimeSamples = millis;
+            delayTimeSamples = samples;
             smoothedDelay.setTargetValue(delayTimeSamples);
             delayLine.setDelay(smoothedDelay.getNextValue());
         }
@@ -58,7 +59,7 @@ class DelayProcessor: public RackEffect
     
         void setMix(float newMix) { mix = juce::jlimit(0.0f, 1.0f, newMix); }
 
-        float getFeedback() { return smoothedFeedback.getNextValue(); }
+        float getFeedback() { return smoothedFeedback.getTargetValue(); }
         void setFeedback(float fb) { smoothedFeedback.setTargetValue(fb); }
 
         void updateRandomly(float bpm) override
@@ -99,7 +100,7 @@ class DelayProcessor: public RackEffect
         [[nodiscard]] std::map<std::string, float> getParameterMap() override
         {
             return {
-                { "delayTime",     getDelayTime() },
+                { "delayTime",     getTargetDelayTime() / _sampleRate },
                 { "delayFeedback", getFeedback() }
             };
         }
