@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 PROJECT(Deranger
 LANGUAGES CXX C
-VERSION 0.8.6
+VERSION 0.8.7
 )
 
 # for clang-tidy(this enable to find system header files).
