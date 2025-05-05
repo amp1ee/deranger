@@ -32,13 +32,13 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   {
     if (effect) {
       updateSliderValues(*effect, name);
-      printf("Effect %s params changed\n", name.c_str());
+      //printf("Effect %s params changed\n", name.c_str());
       auto params = effect->getParameterMap();
       for (const auto& param : params) {
         juce::String id = param.first.c_str();
         juce::String value = juce::String(param.second);
         //audioProcessor.getParameters().setValueNotifyingHost(id, value.getFloatValue());
-        printf("\tParam: %s = %s\n", id.toRawUTF8(), value.toRawUTF8());
+        //printf("\tParam: %s = %s\n", id.toRawUTF8(), value.toRawUTF8());
       }
       this->audioProcessor.applyEffectParamChanges(effect->getParameterMap());
     }
@@ -243,7 +243,7 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
     p.onStateChanged = [this]()
     {
         updateControlsFromParameters();
-        repaint();
+        repaint(); // TODO: Needed?
     };
 }
 
@@ -460,7 +460,7 @@ void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::s
 {
   auto nomsg = juce::dontSendNotification;
 
-  printf("Updating slider values for %s\n", effectName.c_str());
+  //printf("Updating slider values for %s\n", effectName.c_str());
   if (effectName == "Reverb") {
     auto *rev = dynamic_cast<ReverbProcessor *>(&effect);
     juce::dsp::Reverb::Parameters par = rev->getParameters();

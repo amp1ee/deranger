@@ -66,20 +66,20 @@ void DerangerAudioProcessor::applyEffectParamChanges(const std::map<std::string,
     for (const auto& [id, value] : paramMap)
     {
         juce::Identifier paramId(id);
-        printf("ParamID: %s \n", id.c_str());
+        //printf("ParamID: %s \n", id.c_str());
 
         if (auto* param = dynamic_cast<juce::AudioParameterFloat*>(parameters.getParameter(id)))
         {
             param->setValueNotifyingHost(value);
-            printf("  Param: %f ", value);
+            //printf("  Param: %f ", value);
         } else if (auto* param = dynamic_cast<juce::AudioParameterBool*>(parameters.getParameter(id)))
         {
             param->setValueNotifyingHost(static_cast<bool>(value));
-            printf("  Param: %d ", static_cast<int>(value));
+            //printf("  Param: %d ", static_cast<int>(value));
         } else {
-            printf("!! WARNING: Param '%s' not found or not float/bool!\n", id.c_str());
+            //printf("!! WARNING: Param '%s' not found or not float/bool!\n", id.c_str());
         }
-        printf("\n");
+        //printf("\n");
     }
 }
 
