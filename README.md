@@ -1,6 +1,6 @@
 # Deranger
 
-Combines Reverb→Delay→Flanger in series or in parallel, randomizes their parameters, and has ability to pitch-shift the audio thanks to [SignalSmith's Stretch library](https://github.com/Signalsmith-Audio/signalsmith-stretch).
+Combines Delay→Reverb→Flanger in series or in parallel, randomizes their parameters, and has ability to pitch-shift the audio thanks to [SignalSmith's Stretch library](https://github.com/Signalsmith-Audio/signalsmith-stretch).
 
 Check out this demo showcasing the plugin’s sound design potential after resampling:
 <p align="center">
