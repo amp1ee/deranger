@@ -39,7 +39,7 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   p.onStateChanged = [this]()
   {
       updateControlsFromParameters();
-      repaint(); // TODO (amp1ee): Needed?
+      //repaint(); // TODO (amp1ee): Needed?
   };
   
   // === Routing and Random Controls ===
@@ -69,10 +69,10 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
   stretchSemitoneKnob.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::darkslategrey);
 
   stretchSemitoneKnob.onValueChange = [this]() {
-      int semitone = static_cast<int>(stretchSemitoneKnob.getValue());
+      auto semitone = static_cast<float>(stretchSemitoneKnob.getValue());
       audioProcessor.getRack().setStretchSemitones(semitone);
       audioProcessor.applyEffectParamChanges({
-        {"stretchSemitones", static_cast<float>(semitone)}
+        {"stretchSemitones", semitone}
       });
   };
 
@@ -466,7 +466,7 @@ void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::s
   } else if (effectName == "Delay") {
     auto *del = dynamic_cast<DelayProcessor *>(&effect);
 
-    delayTimeSlider.setValue(del->getDelayTime() / audioProcessor.getSampleRate(), nomsg);
+    delayTimeSlider.setValue(del->getTargetDelayTime() / audioProcessor.getSampleRate(), nomsg);
     delayFeedbackSlider.setValue(del->getFeedback(), nomsg);
 
   } else if (effectName == "Flanger") {

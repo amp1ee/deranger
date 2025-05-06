@@ -71,7 +71,7 @@ void DerangerAudioProcessor::applyEffectParamChanges(const std::map<std::string,
             param->setValueNotifyingHost(value);
         } else if (auto* param = dynamic_cast<juce::AudioParameterBool*>(parameters.getParameter(id)))
         {
-            param->setValueNotifyingHost(static_cast<bool>(value));
+            param->setValueNotifyingHost(value);
         } else {
             printf("!! WARNING: Param '%s' not found or not float/bool!\n", id.c_str());
         }
@@ -87,6 +87,8 @@ void DerangerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
         param.setProperty("value", dynamic_cast<DelayProcessor*>(rack.findProcessor("Delay"))->getTargetDelayTime()/_sampleRate, nullptr);
       else if (std::strcmp(param_name, "flangerDelay") == 0)
         param.setProperty("value", dynamic_cast<FlangerProcessor*>(rack.findProcessor("Flanger"))->getDelay(), nullptr);
+      else if (std::strcmp(param_name, "stretchSemitones") == 0)
+        param.setProperty("value", rack.getStretchSemitones(), nullptr);
   }
 
   // Saving the state to XML
