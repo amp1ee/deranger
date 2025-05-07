@@ -45,20 +45,43 @@ DerangerAudioProcessor::~DerangerAudioProcessor() {}
 
 //======= States and Parameters ================================================
 
-void DerangerAudioProcessor::initializeParameters(juce::AudioProcessorValueTreeState& params)
+void DerangerAudioProcessor::initializeParameters(juce::AudioProcessorValueTreeState& params, bool updateEffects)
 {
     randomizeParam = params.getRawParameterValue("randomize");
     stretchEnabledParam = params.getRawParameterValue("stretchEnabled");
     stretchSemitonesParam = params.getRawParameterValue("stretchSemitones");
     isParallelParam = params.getRawParameterValue("isParallel");
+
     delayTimeParam = params.getRawParameterValue("delayTime");
     delayFeedbackParam = params.getRawParameterValue("delayFeedback");
+
     roomSizeParam = params.getRawParameterValue("roomSize");
     wetLevelParam = params.getRawParameterValue("wetLevel");
     dampingParam = params.getRawParameterValue("damping");
+
     flangerFeedbackParam = params.getRawParameterValue("flangerFeedback");
     flangerDelayParam = params.getRawParameterValue("flangerDelay");
     flangerDepthParam = params.getRawParameterValue("flangerDepth");
+
+    if (updateEffects) {
+      rack.setStretchSemitones(*stretchSemitonesParam);
+      rack.setStretchEnabled(*stretchEnabledParam);
+      rack.getRoot().setParallel(*isParallelParam);
+      rack.setRandomize(*randomizeParam);
+
+      dynamic_cast<DelayProcessor*>(rack.findProcessor("Delay"))->setDelayTime(*delayTimeParam * (float)_sampleRate);
+      dynamic_cast<DelayProcessor*>(rack.findProcessor("Delay"))->setFeedback(*delayFeedbackParam);
+
+      auto params = dynamic_cast<ReverbProcessor*>(rack.findProcessor("Reverb"))->getParameters();
+      params.roomSize = *roomSizeParam;
+      params.damping = *dampingParam;
+      params.wetLevel = *wetLevelParam;
+      dynamic_cast<ReverbProcessor*>(rack.findProcessor("Reverb"))->setParameters(params);
+
+      dynamic_cast<FlangerProcessor*>(rack.findProcessor("Flanger"))->setFeedback(*flangerFeedbackParam);
+      dynamic_cast<FlangerProcessor*>(rack.findProcessor("Flanger"))->setDelay(*flangerDelayParam);
+      dynamic_cast<FlangerProcessor*>(rack.findProcessor("Flanger"))->setLFODepth(*flangerDepthParam);
+    }
 }
 
 void DerangerAudioProcessor::applyEffectParamChanges(const std::map<std::string, float>& paramMap) const
@@ -106,6 +129,7 @@ void DerangerAudioProcessor::setStateInformation(const void* data, int sizeInByt
         if (onStateChanged) {
             onStateChanged();
         }
+        initializeParameters(parameters, true);
     }
   }
 }
