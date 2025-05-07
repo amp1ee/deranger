@@ -1,7 +1,7 @@
 Checks: "clang-diagnostic-*,\
 clang-analyzer-*,\
 cppcoreguidelines-*,\
-google-*,\
+
 modernize-*,\
 misc-*,\
 readability-*,\
@@ -9,4 +9,4 @@ performance-*,\
 portability-*,\
 -modernize-use-trailing-return-type\
 "
-HeaderFilterRegex: '**/Source/*\.(hpp|h)'
+HeaderFilterRegex: 'src/.*\.h'

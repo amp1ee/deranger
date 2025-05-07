@@ -20,6 +20,8 @@ class RackProcessor
             stretch.presetDefault(static_cast<int>(spec.numChannels),
                                  static_cast<float>(spec.sampleRate));
             stretch.setTransposeSemitones(stretchSemitones);
+            limiter.setThreshold(-4.0f);
+            limiter.prepare(spec);
         }
 
         void process(juce::dsp::AudioBlock<float> &block)
@@ -44,12 +46,15 @@ class RackProcessor
             if (toRandomize && (blockCounter % blocksPerUpdate) == 0) {
                 root.updateRandomly(currentBPM);
             }
+
+            limiter.process(juce::dsp::ProcessContextReplacing<float>(block));
         }
 
         void reset()
         {
             root.reset();
             stretch.reset();
+            limiter.reset();
         }
 
         void addReverb(juce::AudioProcessorValueTreeState& params)
@@ -172,6 +177,7 @@ class RackProcessor
     private:
         RoutingNode root;
         signalsmith::stretch::SignalsmithStretch<float> stretch;
+        juce::dsp::Limiter<float> limiter;
 
         bool toRandomize = true;
         bool stretchEnabled = true;

@@ -16,7 +16,7 @@ class DelayProcessor: public RackEffect
             _sampleRate = spec.sampleRate;
             numChannels = static_cast<int>(spec.numChannels);
             maxDelaySamples = static_cast<float>(spec.sampleRate * maxDelaySeconds);
-            delayLine.setMaximumDelayInSamples(maxDelaySamples);
+            delayLine.setMaximumDelayInSamples(static_cast<int>(maxDelaySamples));
             delayLine.setDelay(delayTimeSamples);
 
             smoothedDelay.reset(_sampleRate, 0.01f);
