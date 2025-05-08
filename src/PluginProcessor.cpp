@@ -31,8 +31,10 @@ DerangerAudioProcessor::DerangerAudioProcessor()
 #endif
 {
 
-  rack.addDelay  (parameters);
+  /* NOTE: Currently, all the effects (reverb, delay, flanger)
+           must always be added to the rack: */
   rack.addFlanger(parameters);
+  rack.addDelay  (parameters);
   rack.addReverb (parameters);
   rack.addEnd();
 
