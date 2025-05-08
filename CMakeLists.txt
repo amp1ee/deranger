@@ -13,5 +13,9 @@ endif()
 # Enable JUCE. Do not use find_package to prevent from mix up with one globally installed.
 set(JUCE_ROOT "${CMAKE_SOURCE_DIR}/lib/JUCE")
 add_subdirectory(${JUCE_ROOT})
+set(SIGNALSMITH_ROOT "${CMAKE_SOURCE_DIR}/lib/SignalSmith")
+include_directories(Deranger
+    PRIVATE
+        ${SIGNALSMITH_ROOT})
 
 add_subdirectory(src)

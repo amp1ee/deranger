@@ -58,10 +58,6 @@ target_sources(Deranger PRIVATE
     FlangerProcessor.h
     LabelWithBackground.h
     ToggleLookAndFeel.h
-
-    fft.h
-    stft.h
-    signalsmith-stretch.h
 )
 
 target_link_libraries(Deranger PRIVATE

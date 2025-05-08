@@ -1,11 +1,11 @@
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
+#include <signalsmith-stretch.h>
 #include "ReverbProcessor.h"
 #include "DelayProcessor.h"
 #include "FlangerProcessor.h"
 #include "RoutingNode.h"
-#include "signalsmith-stretch.h"
 
 using juce::Reverb;
 
@@ -26,8 +26,6 @@ class RackProcessor
 
         void process(juce::dsp::AudioBlock<float> &block)
         {
-            blockCounter++;
-
             if (stretchEnabled)
                 stretchBlock(block);
 
@@ -39,15 +37,16 @@ class RackProcessor
                 blockSamples = block.getNumSamples();
                 secondsPerBlock = blockSamples / _sampleRate;
                 blocksPerBeat = secondsPerBeat / secondsPerBlock;
-                blocksPerUpdate = (int)(blocksPerBeat * 4);
+                blocksPerUpdate = (int)(blocksPerBeat * 8);
             } else
-                blocksPerUpdate = 128;
+                blocksPerUpdate = 256;
             // Assuming 512-sample buffer @ 44100 Hz → ~11.6 ms per block
             if (toRandomize && (blockCounter % blocksPerUpdate) == 0) {
                 root.updateRandomly(currentBPM);
             }
 
             limiter.process(juce::dsp::ProcessContextReplacing<float>(block));
+            blockCounter++;
         }
 
         void reset()
