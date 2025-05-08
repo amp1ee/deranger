@@ -2,9 +2,9 @@
 
 #include <juce_dsp/juce_dsp.h>
 #include <signalsmith-stretch.h>
-#include "ReverbProcessor.h"
-#include "DelayProcessor.h"
-#include "FlangerProcessor.h"
+#include "../effects/ReverbProcessor.h"
+#include "../effects/DelayProcessor.h"
+#include "../effects/FlangerProcessor.h"
 #include "RoutingNode.h"
 
 using juce::Reverb;

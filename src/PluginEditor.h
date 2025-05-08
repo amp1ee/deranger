@@ -2,8 +2,8 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "LabelWithBackground.h"
-#include "ToggleLookAndFeel.h"
+#include "ui/LabelWithBackground.h"
+#include "ui/ToggleLookAndFeel.h"
 
 //==============================================================================
 /**

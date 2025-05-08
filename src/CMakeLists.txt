@@ -49,15 +49,15 @@ target_sources(Deranger PRIVATE
     PluginProcessor.h
     PluginEditor.cpp
     PluginEditor.h
-    RoutingNode.cpp
-    RoutingNode.h
-    RackProcessor.h
-    RackEffect.h
-    ReverbProcessor.h
-    DelayProcessor.h
-    FlangerProcessor.h
-    LabelWithBackground.h
-    ToggleLookAndFeel.h
+    core/RoutingNode.cpp
+    core/RoutingNode.h
+    core/RackProcessor.h
+    effects/RackEffect.h
+    effects/ReverbProcessor.h
+    effects/DelayProcessor.h
+    effects/FlangerProcessor.h
+    ui/LabelWithBackground.h
+    ui/ToggleLookAndFeel.h
 )
 
 target_link_libraries(Deranger PRIVATE

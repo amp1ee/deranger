@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 #include <atomic>
-#include "RackProcessor.h"
+#include "core/RackProcessor.h"
 
 //==============================================================================
 /**

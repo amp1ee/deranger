@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "RackEffect.h"
+#include "../effects/RackEffect.h"
 
 /**
 *   RoutingNode structure:
