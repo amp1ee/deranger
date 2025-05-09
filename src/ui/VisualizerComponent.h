@@ -29,11 +29,13 @@ class VisualizerComponent : public juce::AnimatedAppComponent
             // Background color based on audio
             g.setColour(juce::Colour::fromFloatRGBA(instantLevel, rmsLevel, stereoWidth, 0.5 - std::abs(instantLevel - stereoWidth)));
             //g.setFillType(juce::Colour::fromFloatRGBA(instantLevel, rmsLevel, stereoWidth, 1.0f - std::abs(instantLevel - stereoWidth)));
-            g.fillRect(getLocalBounds());
+            int offset = 112;
+            g.fillEllipse(getWidth()/2 - (svgimg->getWidth()-offset)/2, getHeight()/2 - (svgimg->getHeight()-offset)/2, svgimg->getWidth() - offset, svgimg->getHeight() - offset);
 
+            g.setColour(juce::Colour::fromFloatRGBA(rmsLevel, instantLevel, stereoWidth, 0.5 - std::abs(instantLevel - stereoWidth)));
             // Draw centered ellipse
             g.fillEllipse(centerX - ellipseWidth / 2.0f,
-                centerY - ellipseHeight / 2.0f,
+                centerX - ellipseWidth / 2.0f,
                 ellipseWidth,
                 ellipseHeight);
         }
@@ -53,8 +55,8 @@ class VisualizerComponent : public juce::AnimatedAppComponent
             centerY = getHeight() / 2.0f;
         
             // Size modulated by audio
-            ellipseWidth  = 30.0f * 10.0f * instantLevel;
-            ellipseHeight = 29.0f * 10.0f * rmsLevel;
+            ellipseWidth  = 24.0f * 10.0f * instantLevel;
+            ellipseHeight = 24.0f * 10.0f * rmsLevel;
             // You must repaint the components using this colour
             //repaint(); // if visualizer uses it (???)
         }
