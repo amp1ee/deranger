@@ -4,6 +4,8 @@
 #include "PluginProcessor.h"
 #include "ui/LabelWithBackground.h"
 #include "ui/ToggleLookAndFeel.h"
+#include "ui/VisualizerComponent.h"
+#include "ui/DynamicLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -28,7 +30,6 @@ class DerangerAudioProcessorEditor : public juce::AudioProcessorEditor,
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
   DerangerAudioProcessor &audioProcessor;
-  std::unique_ptr<juce::Drawable> svgimg;
 
   juce::ToggleButton  isParallelButton;
   juce::ToggleButton  randomizeButton;
@@ -50,6 +51,7 @@ class DerangerAudioProcessorEditor : public juce::AudioProcessorEditor,
 
   juce::TooltipWindow tooltipWindow;
   ToggleLookAndFeel toggleLookAndFeel;
+  DynamicLookAndFeel dynamicLookAndFeel;
 
   juce::Label bpmLabel;
   double _currentBpm = 0.0f;
@@ -58,11 +60,12 @@ class DerangerAudioProcessorEditor : public juce::AudioProcessorEditor,
   void addAndConfigureSlider(juce::Slider& slider, juce::Label& label, juce::ToggleButton& toggle,
                              const juce::String& name, float min, float max, float initial);
 
-  void updateSliderValues(RackEffect& effect, std::string effectName);
+  void updateSliderValues(RackEffect& effect, const std::string& effectName);
   void updateControlsFromParameters();
 
   juce::GroupComponent sliderContainer {"Sliders" };
   static constexpr int numSliders = 8;
+  VisualizerComponent visualizer { audioProcessor };
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DerangerAudioProcessorEditor)
 };

@@ -49,6 +49,9 @@ class DerangerAudioProcessor : public juce::AudioProcessor {
 
   RackProcessor& getRack();
   float getCurrentBPM() const { return currentBPM; }
+  float getRMSLevel() const { return currentRMSLevel.load(); }
+  float getInstantLevel() const { return currentInstantLevel.load(); }
+  float getStereoWidth() const { return currentStereoWidth.load(); }
 
   juce::AudioProcessorValueTreeState parameters;
   std::function<void()> onStateChanged;
@@ -75,6 +78,13 @@ class DerangerAudioProcessor : public juce::AudioProcessor {
   std::atomic<float> currentBPM = 0.0f;
   float  nowBpm = 0.0f;
   double _sampleRate = 44100.0;
+
+  // Visualizer
+  std::atomic<float> currentRMSLevel = 0.0f;
+  std::atomic<float> currentInstantLevel = 0.0f;
+  std::atomic<float> currentStereoWidth = 0.0f;
+  float rms, sum;
+  float leftPeak, rightPeak;
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DerangerAudioProcessor)
 };

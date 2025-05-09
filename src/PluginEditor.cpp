@@ -8,11 +8,11 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
 
 
   setSize(420, 690);
-
-  svgimg = juce::Drawable::createFromImageData(BinaryData::amplee_svg,
-                                                 BinaryData::amplee_svgSize);
+  setResizable(true, true);
 
   addAndMakeVisible(sliderContainer);
+  addAndMakeVisible(visualizer);
+  visualizer.toBack();
 
   auto *rev = findReverbProcessor();
   addAndConfigureSlider(reverbRoomSizeSlider, reverbRoomSizeLabel, reverbRoomSizeToggle, "RV Size", 0.0f, 1.0f, rev->getParameters().roomSize);
@@ -83,8 +83,9 @@ DerangerAudioProcessorEditor::DerangerAudioProcessorEditor(
     bpmLabel.setJustificationType(juce::Justification::centredLeft);
     bpmLabel.attachToComponent(&randomizeButton, false);
     addAndMakeVisible(bpmLabel);
-    startTimerHz(10);
   }
+
+  startTimerHz(10);
 
   isParallelButton.onStateChange = [this]() {
     bool state = isParallelButton.getToggleState();
@@ -278,14 +279,15 @@ void DerangerAudioProcessorEditor::updateControlsFromParameters()
 
 void DerangerAudioProcessorEditor::timerCallback()
 {
+  if (!juce::JUCEApplicationBase::isStandaloneApp()) {
     float bpm = audioProcessor.getCurrentBPM();  // Atomic safe read
-
     bpmLabel.setText("BPM: " + juce::String(bpm, 2), juce::dontSendNotification);
+  }
+  repaint();
 }
 
 DerangerAudioProcessorEditor::~DerangerAudioProcessorEditor() {
     audioProcessor.getRack().getRoot().onEffectParamsChanged = nullptr;
-    svgimg = nullptr;
     reverbRoomSizeToggle.setLookAndFeel(nullptr);
     reverbWetToggle.setLookAndFeel(nullptr);
     reverbDampingToggle.setLookAndFeel(nullptr);
@@ -301,14 +303,17 @@ DerangerAudioProcessorEditor::~DerangerAudioProcessorEditor() {
 
 //==============================================================================
 void DerangerAudioProcessorEditor::paint(juce::Graphics &g) {
-  // (Our component is opaque, so we must completely fill the background with a
-  // solid colour)
-  g.fillAll(
-      getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-  svgimg->drawWithin(g, getLocalBounds().reduced(24).toFloat(),
-                    juce::Justification::centred, 1);
 
-  g.setColour(juce::Colours::black);
+  auto instantLevel = audioProcessor.getInstantLevel();
+  auto rmsLevel = audioProcessor.getRMSLevel();
+  auto stereoWidth = audioProcessor.getStereoWidth();
+
+  // if (rmsLevel < 0.001f && instantLevel < 0.001f)
+  //     return;
+
+  auto clr = juce::Colour::fromFloatRGBA(rmsLevel * 10, stereoWidth * 10, instantLevel * 10, 1);
+  printf("clr: %f %f %f %f\n", clr.getFloatRed(), clr.getFloatGreen(), clr.getFloatBlue(), clr.getFloatAlpha());
+  dynamicLookAndFeel.setSliderColour(clr);
 }
 
 // =====----=================== resized() ======================================== //
@@ -319,6 +324,7 @@ void DerangerAudioProcessorEditor::resized() {
   int toggleWidth = rowHeight / 2 + 2;
   int spacing = 14;
 
+  visualizer.setBounds(getLocalBounds());
   sliderContainer.setBounds(10, 10, getWidth() - 20, getHeight() - 20);
 
   auto row = [&]() {
@@ -428,12 +434,12 @@ void DerangerAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, j
     slider.setRange(min, max);
     slider.setNumDecimalPlacesToDisplay(3);
     slider.setValue(initial);
-    slider.setColour(juce::Slider::thumbColourId, juce::Colours::aqua);
-    slider.setColour(juce::Slider::trackColourId, juce::Colours::darkcyan);
+    //slider.setColour(juce::Slider::thumbColourId, juce::Colours::aqua);
+    //slider.setColour(juce::Slider::trackColourId, juce::Colours::darkcyan);
     slider.setColour(juce::Slider::textBoxTextColourId, juce::Colours::white);
     slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
     slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::darkslategrey);
-
+    slider.setLookAndFeel(&dynamicLookAndFeel);
     addAndMakeVisible(slider);
 
     label.setText(name, juce::dontSendNotification);
@@ -451,7 +457,7 @@ void DerangerAudioProcessorEditor::addAndConfigureSlider(juce::Slider& slider, j
 
 }
 
-void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, std::string effectName)
+void DerangerAudioProcessorEditor::updateSliderValues(RackEffect& effect, const std::string& effectName)
 {
   auto nomsg = juce::dontSendNotification;
 

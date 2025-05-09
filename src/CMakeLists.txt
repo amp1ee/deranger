@@ -58,6 +58,8 @@ target_sources(Deranger PRIVATE
     effects/FlangerProcessor.h
     ui/LabelWithBackground.h
     ui/ToggleLookAndFeel.h
+    ui/VisualizerComponent.h
+    ui/DynamicLookAndFeel.h
 )
 
 target_link_libraries(Deranger PRIVATE

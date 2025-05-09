@@ -269,6 +269,34 @@ void DerangerAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Process the block with the RackProcessor
   rack.process(block);
 
+  auto numSamples = buffer.getNumSamples();
+  sum = 0.0f;
+  for (int ch = 0; ch < totalNumOutputChannels; ++ch)
+  {
+      auto* data = buffer.getReadPointer(ch);
+      for (int i = 0; i < numSamples; ++i)
+          sum += data[i] * data[i];
+  }
+
+  rms = std::sqrt(sum / (numSamples * totalNumOutputChannels));
+  currentRMSLevel.store(rms);
+  currentInstantLevel.store(buffer.getMagnitude(0, numSamples));
+
+  if (buffer.getNumChannels() >= 2)
+  {
+      auto* left = buffer.getReadPointer(0);
+      auto* right = buffer.getReadPointer(1);
+      auto numSamples = buffer.getNumSamples();
+
+      for (int i = 0; i < numSamples; ++i)
+      {
+          leftPeak  = std::max(leftPeak,  std::abs(left[i]));
+          rightPeak = std::max(rightPeak, std::abs(right[i]));
+      }
+
+      float width = std::abs(leftPeak - rightPeak);
+      currentStereoWidth.store(width);
+  } else { currentStereoWidth.store(0.0f); }
 }
 
 //==============================================================================
