@@ -9,7 +9,7 @@ Check out this demo showcasing the plugin’s sound design potential after resam
   </a>
 </p>
 
-Detailed explanation: <a href="https://deepwiki.com/amp1ee/deranger"><img src="https://deepwiki.com/badge.svg" alt="See review by DeepWiki"></a>
+Detailed AI documentation: <a href="https://deepwiki.com/amp1ee/deranger"><img src="https://deepwiki.com/badge.svg" alt="See review by DeepWiki"></a>
 
 This project has been bootstrapped from:
 
