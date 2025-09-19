@@ -1,4 +1,4 @@
-# Deranger
+# Deranger VST
 
 Combines Delay→Reverb→Flanger in series or in parallel, randomizes their parameters, and has ability to pitch-shift the audio thanks to [SignalSmith's Stretch library](https://github.com/Signalsmith-Audio/signalsmith-stretch).
 
